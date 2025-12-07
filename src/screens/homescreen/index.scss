@@ -1,0 +1,41 @@
+.home-container {
+    // background-color: orange;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+
+    .left-container {
+        background-color: black;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+        .item-container{
+            // border-color: 20px solid red;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            img {
+                width: 150px;   // or max-width: 50%; depending on your design
+                height: auto;
+                object-fit: contain;
+            }
+            button{
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                height: 40px;
+                width: 90%;
+                border-radius: 10px;
+                border: none;
+                transition-duration: 1s;
+                button:hover{
+                    box-shadow: 2px 2px 6px gray;
+                }
+                font-size: 15px;
+            }
+        }
+    }
+}
