@@ -1,46 +1,153 @@
 .right-container {
-    background-color: #694be2;
-    padding: 20px;
+  background-color: #694be2;
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;   // adds scroll if cards overflow
 
-    .header {
-        padding: 10px 0;        // removed duplicate padding
-        display: flex;
-        justify-content: space-between;
-        border-bottom: 1px solid black;
+  .header {
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
     }
 
     .add-folder-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.25s ease;
+
+      &:hover {
+        background: #f1eaff;
+        transform: translateY(-2px);
+      }
+
+      span {
+        color: #694be2;
+        font-size: 20px;
+      }
+    }
+  }
+
+  .folder-container {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+
+      .folder {
         display: flex;
-        justify-content: center;
         align-items: center;
-        border-radius: 10px;
-        padding: 10px;
-    }
+        gap: 8px;
 
-    .folder-container {
-        border-bottom: 1px solid black;
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-
-            .folder {
-                display: flex;
-            }
-
-            .icons {
-                display: flex;
-                gap: 15px;
-
-                .button {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    border-radius: 10px;
-                    // padding: 1px;
-                    cursor: pointer;
-                }
-            }
+        span {
+          font-size: 20px;
         }
+      }
+
+      .icons {
+        display: flex;
+        gap: 14px;
+
+        .button {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-radius: 8px;
+        //   width: 34px;
+        //   height: 34px;
+          background: rgba(255, 255, 255, 0.15);
+          transition: 0.25s ease;
+          cursor: pointer;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+          }
+        }
+      }
     }
+
+    .cards-container {
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: flex-start;
+
+      .card {
+        width: 100%;
+        max-width: 350px;
+        flex: 1 1 260px;
+        padding: 16px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        cursor: pointer;
+        transition: 0.25s ease;
+
+        img {
+          width: 65px;
+          height: auto;
+          object-fit: contain;
+          padding: 8px;
+        }
+
+        .title-language {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+
+          .title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+          }
+
+          .language {
+            font-size: 0.85rem;
+            color: #666;
+          }
+        }
+
+        .icons {
+          display: flex;
+          gap: 10px;
+
+          span {
+            font-size: 22px;
+            color: #694be2;
+            transition: 0.25s ease;
+
+            &:hover {
+              color: #4f3ab1;
+            }
+          }
+        }
+
+        &:hover {
+          transform: translateY(-4px);
+          box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.25);
+        }
+      }
+    }
+  }
 }

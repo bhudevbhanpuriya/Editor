@@ -11,9 +11,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@100..900&display=swap');
+
+.bitcount {
+  font-family: "Bitcount Prop Single", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 400; /* example */
+  font-style: normal;
+}
+
+/* body {
+  font-family: "Bitcount Prop Single", system-ui;
+} */
 
 
- *{
+
+*{
   margin: 0;
   padding: 0;
 } 
