@@ -83,6 +83,30 @@ export const PlayGroundProvider = ({ children }) => {
         setFolders(newFolders)
     }
 
+    const createNewFile = (newFileName, language, folderId) => {
+        const newFile = {
+            id: v4(),
+            title: newFileName,
+            code: defaultCode[language],
+            language: language
+        }
+
+        const updatedFolders = folders.map(folder => {
+            if (folder.id === folderId) {
+                return {
+                    ...folder,
+                    files: [...folder.files, newFile]
+                };
+            }
+            return folder;
+        });
+
+
+        localStorage.setItem('data', JSON.stringify(updatedFolders));
+        setFolders(updatedFolders);
+    }
+
+
     const createNewPlayground = (newPlayground) => {
         const { folderName, fileName, language } = newPlayground
         const newFolders = [...folders];
@@ -111,10 +135,25 @@ export const PlayGroundProvider = ({ children }) => {
         setFolders(updatedFolderList);
     }
 
+    const deleteFile = (id) => {
+        const updatedFolderList = folders.map((folderItem) => {
+            const updatedFiles = folderItem.files
+                ?.filter((fileItem) => fileItem !== null && fileItem.id !== id);
+
+            return {
+                ...folderItem,
+                files: updatedFiles
+            };
+        });
+        setFolders(updatedFolderList);
+        localStorage.setItem("data", JSON.stringify(updatedFolderList));
+
+    }
+
 
     const renameFolder = (newFolderName, id) => {
         const updatedFolderList = folders.map((folderItem) => {
-            if(folderItem.id === id){
+            if (folderItem.id === id) {
                 folderItem.title = newFolderName;
             }
             return folderItem;
@@ -146,6 +185,7 @@ export const PlayGroundProvider = ({ children }) => {
 
 
 
+
     useEffect(() => {
         if (!localStorage.getItem('data')) {
             localStorage.setItem('data', JSON.stringify(folders));
@@ -158,7 +198,9 @@ export const PlayGroundProvider = ({ children }) => {
         createNewFolder,
         deleteFolder,
         renameFolder,
-        renameFile
+        renameFile,
+        deleteFile,
+        createNewFile
     }
 
     return (

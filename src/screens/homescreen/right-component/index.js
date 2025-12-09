@@ -18,6 +18,11 @@ const Folder = ({ folderTitle, cards, folderId }) => {
         openModel(ModelConstant.RENAME_FOLDER);
     }
 
+    const openCreateNewFile = () => {
+        setModelPayload(folderId);
+        openModel(ModelConstant.CREATE_FILE);
+    }
+
 
     return <div className='folder-container'>
         <div className='header'>
@@ -28,7 +33,7 @@ const Folder = ({ folderTitle, cards, folderId }) => {
             <div className='icons'>
                 <span className='material-icons' onClick={deleteFolder}>delete</span>
                 <span className='material-icons' onClick={openRenameFolderModel}>edit</span>
-                <button className='button'>
+                <button className='button' onClick={openCreateNewFile}>
                     <span className='material-icons'>add</span>
                     <span>New Playground</span>
 
@@ -42,13 +47,18 @@ const Folder = ({ folderTitle, cards, folderId }) => {
                 cards?.map((file, index) => {
 
                     const openRenameFileModel = () => {
-                        setModelPayload({fileId : file.id , folderId : folderId})
+                        setModelPayload({fileId : file.id , folderId})
                         openModel(ModelConstant.RENAME_FILE);
+                    }
+
+                    const deleteFile = () => {
+                        // setModelPayload({file: file.id});
+                        playgroundFeatures.deleteFile(file.id);
                     }
 
                     return (
                         <div className='card' key={index}>
-                            <img src={file.image || './logo.png'} alt='logo' />
+                            <img src={'./logo.png'} alt='logo' />
 
                             <div className='title-language'>
                                 <span> {file?.title}</span>
@@ -56,7 +66,7 @@ const Folder = ({ folderTitle, cards, folderId }) => {
                             </div>
 
                             <div className='icons'>
-                                <span className='material-icons'>delete</span>
+                                <span className='material-icons' onClick={deleteFile}>delete</span>
                                 <span className='material-icons' onClick={openRenameFileModel}>edit</span>
                             </div>
                         </div>
