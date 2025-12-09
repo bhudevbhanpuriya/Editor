@@ -1,8 +1,24 @@
 import { useContext } from 'react';
 import { PlaygroundContext, PlayGroundProvider } from '../../../provider/playground-provider';
 import './index.scss'
+import { ModelConstant, ModelContext } from '../../../provider/ModelProvider';
 
-const Folder = ({ folderTitle, cards }) => {
+const Folder = ({ folderTitle, cards, folderId }) => {
+    const playgroundFeatures = useContext(PlaygroundContext);
+    const { setModelPayload, openModel } = useContext(ModelContext);
+
+    const deleteFolder = () => {
+        playgroundFeatures.deleteFolder(folderId);
+    }
+
+    const openRenameFolderModel = () => {
+        // playgroundFeatures.renameFolder(id);
+        // console.log(id);
+        setModelPayload({folderId : folderId});
+        openModel(ModelConstant.RENAME_FOLDER);
+    }
+
+
     return <div className='folder-container'>
         <div className='header'>
             <div className='folder'>
@@ -10,8 +26,8 @@ const Folder = ({ folderTitle, cards }) => {
                 <span>{folderTitle}</span>
             </div>
             <div className='icons'>
-                <span className='material-icons'>delete</span>
-                <span className='material-icons'>edit</span>
+                <span className='material-icons' onClick={deleteFolder}>delete</span>
+                <span className='material-icons' onClick={openRenameFolderModel}>edit</span>
                 <button className='button'>
                     <span className='material-icons'>add</span>
                     <span>New Playground</span>
@@ -21,49 +37,62 @@ const Folder = ({ folderTitle, cards }) => {
             </div>
         </div>
         <div className='cards-container'>
+            {
 
-            {cards?.map((file, index) => (
-                <div className='card' key={index}>
-                    <img src={file.image || './logo.png'} alt='logo' />
+                cards?.map((file, index) => {
 
-                    <div className='title-language'> 
-                        <span> { file?.title}</span>
-                        <span> Language: { file?.language}</span>
-                    </div>
+                    const openRenameFileModel = () => {
+                        setModelPayload({fileId : file.id , folderId : folderId})
+                        openModel(ModelConstant.RENAME_FILE);
+                    }
 
-                    <div className='icons'>
-                        <span className='material-icons'>delete</span>
-                        <span className='material-icons'>edit</span>
-                    </div>
-                </div>
-            ))}
+                    return (
+                        <div className='card' key={index}>
+                            <img src={file.image || './logo.png'} alt='logo' />
 
+                            <div className='title-language'>
+                                <span> {file?.title}</span>
+                                <span> Language: {file?.language}</span>
+                            </div>
 
+                            <div className='icons'>
+                                <span className='material-icons'>delete</span>
+                                <span className='material-icons' onClick={openRenameFileModel}>edit</span>
+                            </div>
+                        </div>
+                    );
+
+                })}
 
         </div>
     </div>
 }
 
+
 export const RightComponent = () => {
-    const {folders} = useContext(PlaygroundContext);
+    const { folders } = useContext(PlaygroundContext);
+    const modelFeatures = useContext(ModelContext);
+
+    const openCreateNewFolderModel = () => {
+        modelFeatures.openModel(ModelConstant.CREATE_FOLDER)
+    }
+
     return (
         <div className='right-container'>
             <div className='header'>
                 <h1>My PlayGround</h1>
-                <button className='add-folder-container'>
+                <button className='add-folder-container' onClick={openCreateNewFolderModel}>
                     <span className='material-icons'>add</span>
                     <span>New Folder</span>
                 </button>
             </div>
             {
                 folders?.map((folder, index) => {
-                    return <Folder folderTitle={folder?.title} cards={folder?.files} key={index}/>
+                    if (!folder) return null;
+                    return <Folder folderTitle={folder?.title} cards={folder?.files} folderId={folder.id} key={folder.id} />
                 })
             }
-
-
         </div>
-
 
     );
 }

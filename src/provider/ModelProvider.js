@@ -2,18 +2,29 @@ import { createContext, useState } from "react";
 
 export const ModelContext = createContext();
 
+export const ModelConstant = {
+    CREATE_PLAYGROUND : 'CREATE_PLAYGROUND',
+    CREATE_FOLDER : 'CREATE_FOLDER',
+    RENAME_FOLDER : 'RENAME_FOLDER'
+}
+
 export const ModelProvider = ({children}) => {
 
     const [modelType , setModelType] = useState(null);
+    const [modelPayload , setModelPayload] = useState(null);
 
     const closeModel = () => {
         setModelType(null);
+        setModelPayload(null);
     }
+
 
     const modelFeature = {
         openModel:setModelType,
         closeModel,
-        activeModel:modelType
+        activeModel:modelType,
+        modelPayload,
+        setModelPayload
     }
 
 

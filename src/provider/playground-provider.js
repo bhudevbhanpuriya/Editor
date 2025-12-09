@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 // import { } from "react";
 import { v4 } from 'uuid';
+
 export const PlaygroundContext = createContext();
 const intialData = [
     {
@@ -58,11 +59,29 @@ int main() {
 export const PlayGroundProvider = ({ children }) => {
     const [folders, setFolders] = useState(() => {
         const localData = localStorage.getItem('data');
-        if(localData){
-            return JSON.parse(localData);
+        if (localData) {
+            try {
+                const parsed = JSON.parse(localData);
+                if (Array.isArray(parsed)) return parsed;
+            } catch (e) {
+                console.warn("Invalid localStorage data → resetting");
+            }
+            localStorage.removeItem('data');
         }
         return intialData;
     });
+
+    const createNewFolder = (newFolder) => {
+        const { folderName } = newFolder;
+        const newFolders = [...folders];
+        newFolders.push({
+            id: v4(),
+            title: folderName,
+            files: []
+        })
+        localStorage.setItem('data', JSON.stringify(newFolders));
+        setFolders(newFolders)
+    }
 
     const createNewPlayground = (newPlayground) => {
         const { folderName, fileName, language } = newPlayground
@@ -83,16 +102,63 @@ export const PlayGroundProvider = ({ children }) => {
         setFolders(newFolders)
     }
 
+    const deleteFolder = (id) => {
+        const updatedFolderList = folders.filter((folderItem) => {
+            return folderItem.id !== id;
+        })
+
+        localStorage.setItem('data', JSON.stringify(updatedFolderList));
+        setFolders(updatedFolderList);
+    }
+
+
+    const renameFolder = (newFolderName, id) => {
+        const updatedFolderList = folders.map((folderItem) => {
+            if(folderItem.id === id){
+                folderItem.title = newFolderName;
+            }
+            return folderItem;
+        });
+        localStorage.setItem("data", JSON.stringify(updatedFolderList));
+        setFolders(updatedFolderList);
+    };
+
+
+    const renameFile = (newFileName, folderId, fileId) => {
+        for (let i = 0; i < folders.length; i++) {
+            if (folders[i].id === folderId) {
+                const files = folders[i].files;
+
+                for (let j = 0; j < files.length; j++) {
+                    if (files[j].id === fileId) {
+                        files[j].title = newFileName;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        setFolders([...folders]);
+        localStorage.setItem("data", JSON.stringify(folders));
+    };
+
+
+
+
     useEffect(() => {
         if (!localStorage.getItem('data')) {
             localStorage.setItem('data', JSON.stringify(folders));
-
         }
     }, [])
 
     const playgroundFeatures = {
         folders,
-        createNewPlayground
+        createNewPlayground,
+        createNewFolder,
+        deleteFolder,
+        renameFolder,
+        renameFile
     }
 
     return (

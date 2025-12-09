@@ -2,13 +2,13 @@ import "./index.scss"
 import { RightComponent } from "./right-component";
 import { Model } from "../../provider/models/model";
 import { useContext } from "react";
-import { ModelContext } from "../../provider/ModelProvider";
+import { ModelConstant, ModelContext } from "../../provider/ModelProvider";
 
 export const HomeScreen = () => {
     const modelFeature = useContext(ModelContext);
 
     const openCreatePlaygroundModel = () => {
-        modelFeature.openModel("CREATE_PLAYGROUND");
+        modelFeature.openModel(ModelConstant.CREATE_PLAYGROUND);
     }
     return (
         <div className="home-container">

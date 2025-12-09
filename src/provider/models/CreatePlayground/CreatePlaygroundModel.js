@@ -1,7 +1,7 @@
 import { useContext } from "react"
 import "./createPlaygroundModel.scss"
-import { ModelContext } from "../ModelProvider"
-import { PlaygroundContext, PlayGroundProvider } from "../playground-provider"
+import { ModelContext } from "../../ModelProvider"
+import { PlaygroundContext, PlayGroundProvider } from "../../playground-provider"
 
 export const CreatePLaygroundModel = () => {
     const modelFeature = useContext(ModelContext)
