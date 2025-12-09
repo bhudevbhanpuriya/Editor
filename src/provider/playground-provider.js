@@ -33,7 +33,7 @@ const intialData = [
 ]
 
 const defaultCode = {
-  cpp: `#include <bits/stdc++.h>
+    cpp: `#include <bits/stdc++.h>
 using namespace std;
 
 int main() {
@@ -42,21 +42,27 @@ int main() {
 }
 `,
 
-  java: `public class Main {
+    java: `public class Main {
     public static void main(String[] args) {
         System.out.println("Hello World!");
     }
 }
 `,
 
-  javascript: `console.log("Hello World!");`,
+    javascript: `console.log("Hello World!");`,
 
-  python: `print("Hello World!")`
+    python: `print("Hello World!")`
 };
 
 
 export const PlayGroundProvider = ({ children }) => {
-    const [folders, setFolders] = useState(intialData);
+    const [folders, setFolders] = useState(() => {
+        const localData = localStorage.getItem('data');
+        if(localData){
+            return JSON.parse(localData);
+        }
+        return intialData;
+    });
 
     const createNewPlayground = (newPlayground) => {
         const { folderName, fileName, language } = newPlayground
@@ -69,7 +75,7 @@ export const PlayGroundProvider = ({ children }) => {
                     id: v4(),
                     title: fileName,
                     code: defaultCode[language],
-                    language : language
+                    language: language
                 }
             ]
         })
@@ -78,7 +84,10 @@ export const PlayGroundProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        localStorage.setItem('data', JSON.stringify(folders));
+        if (!localStorage.getItem('data')) {
+            localStorage.setItem('data', JSON.stringify(folders));
+
+        }
     }, [])
 
     const playgroundFeatures = {

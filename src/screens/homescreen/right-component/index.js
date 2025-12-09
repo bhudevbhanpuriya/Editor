@@ -46,7 +46,6 @@ const Folder = ({ folderTitle, cards }) => {
 
 export const RightComponent = () => {
     const {folders} = useContext(PlaygroundContext);
-    // console.log(folders);
     return (
         <div className='right-container'>
             <div className='header'>
@@ -56,7 +55,6 @@ export const RightComponent = () => {
                     <span>New Folder</span>
                 </button>
             </div>
-
             {
                 folders?.map((folder, index) => {
                     return <Folder folderTitle={folder?.title} cards={folder?.files} key={index}/>

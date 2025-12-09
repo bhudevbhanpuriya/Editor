@@ -32,8 +32,8 @@ export const CreatePLaygroundModel = () => {
                 <span onClick={closeModel} className="material-icons">close</span>
             </div>
             <div className="input">
-                    <p>Enter Folder Name</p>
-                    <input name='folderName' required/>
+                <p>Enter Folder Name</p>
+                <input name='folderName' required/>
             </div>
             <div className="input">
                 <p>Enter Card Name</p>

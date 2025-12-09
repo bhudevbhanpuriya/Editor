@@ -2,6 +2,7 @@
   height: 100vh;
   display: grid;
   grid-template-columns: 2fr 3fr;
+    // background-color: #000;
 
   .left-container {
     background-color: #000;
@@ -10,6 +11,8 @@
     justify-content: center;
     align-items: center;
     padding: 20px;
+    height: 100%;
+    // position: fixed;
 
     .item-container {
       display: flex;
