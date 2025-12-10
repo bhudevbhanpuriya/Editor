@@ -2,10 +2,13 @@ import { useContext } from 'react';
 import { PlaygroundContext, PlayGroundProvider } from '../../../provider/playground-provider';
 import './index.scss'
 import { ModelConstant, ModelContext } from '../../../provider/ModelProvider';
+import { useNavigate } from 'react-router-dom';
+
 
 const Folder = ({ folderTitle, cards, folderId }) => {
     const playgroundFeatures = useContext(PlaygroundContext);
     const { setModelPayload, openModel } = useContext(ModelContext);
+    const navigate = useNavigate();
 
     const deleteFolder = () => {
         playgroundFeatures.deleteFolder(folderId);
@@ -46,8 +49,14 @@ const Folder = ({ folderTitle, cards, folderId }) => {
 
                 cards?.map((file, index) => {
 
+                    const openPlaygroundScreen = () => {
+                        // console.log(`file id is `,file.id);
+                        // console.log(`folder id is`,folderId);
+                        navigate(`/playground/${file.id}/${folderId}`);
+                    }
+
                     const openRenameFileModel = () => {
-                        setModelPayload({fileId : file.id , folderId})
+                        setModelPayload({fileId : file.id ,folderId: folderId})
                         openModel(ModelConstant.RENAME_FILE);
                     }
 
@@ -57,7 +66,7 @@ const Folder = ({ folderTitle, cards, folderId }) => {
                     }
 
                     return (
-                        <div className='card' key={index}>
+                        <div className='card' key={index} onClick={openPlaygroundScreen}>
                             <img src={'./logo.png'} alt='logo' />
 
                             <div className='title-language'>
@@ -90,7 +99,7 @@ export const RightComponent = () => {
     return (
         <div className='right-container'>
             <div className='header'>
-                <h1>My PlayGround</h1>
+                <h1 >My PlayGround</h1>
                 <button className='add-folder-container' onClick={openCreateNewFolderModel}>
                     <span className='material-icons'>add</span>
                     <span>New Folder</span>

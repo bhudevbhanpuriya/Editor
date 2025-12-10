@@ -10,8 +10,8 @@ export const RenameFileNameModel = () => {
 
     const onSubmitModel = (e) => {
         e.preventDefault();
-        const newFolderName = e.target.newFileName.value;
-        playgroundFeatures.renameFile(newFolderName,modelPayload.folderId, modelPayload.fileId );
+        const newFileName = e.target.newFileName.value;
+        playgroundFeatures.renameFile(newFileName,modelPayload.folderId, modelPayload.fileId );
         closeModel();
     }
 

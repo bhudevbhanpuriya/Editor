@@ -11,7 +11,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path='/' element={<HomeScreen />} />
-            <Route path='/playground' element={<PlayGroundScreen />} />
+            <Route path='/playground/:fileId/:folderId' element={<PlayGroundScreen />} />
           </Routes>
         </BrowserRouter>
       </ModelProvider>

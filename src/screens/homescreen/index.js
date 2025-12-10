@@ -17,7 +17,7 @@ export const HomeScreen = () => {
                 <div className="item-container">
 
                     <img src='logo.png' />
-                    <h2>Codein.it</h2>
+                    <h2 className= "bitcount" >CODEIN.it</h2>
                     <h3>Code | Debug | Run </h3>
 
                     <button onClick={openCreatePlaygroundModel}>

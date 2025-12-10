@@ -5,7 +5,8 @@ export const ModelContext = createContext();
 export const ModelConstant = {
     CREATE_PLAYGROUND : 'CREATE_PLAYGROUND',
     CREATE_FOLDER : 'CREATE_FOLDER',
-    RENAME_FOLDER : 'RENAME_FOLDER'
+    RENAME_FOLDER : 'RENAME_FOLDER',
+    RENAME_FILE : 'RENAME_FILE' 
 }
 
 export const ModelProvider = ({children}) => {
