@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 // import { } from "react";
 import { v4 } from 'uuid';
+import { ModelContext } from "./ModelProvider";
 
 export const PlaygroundContext = createContext();
 const intialData = [
@@ -11,7 +12,14 @@ const intialData = [
             {
                 id: v4(),
                 title: 'index',
-                code: 'cout<<"Hello bhu1"<<endl',
+                code: `#include <bits/stdc++.h>
+                        using namespace std;
+
+                        int main() {
+                            cout << "Hello Remiss!";
+                            return 0;
+                        }
+                        `,
                 language: 'cpp'
             }
         ]
@@ -26,19 +34,19 @@ const intialData = [
                 id: v4(),
                 title: 'homepage',
                 code: 'console.log("Hello bhu1");',
-                language: 'cpp'
+                language: 'jabascript'
             }
         ]
 
     }
 ]
 
-const defaultCode = {
+export const defaultCode = {
     cpp: `#include <bits/stdc++.h>
 using namespace std;
 
 int main() {
-    cout << "Hello World!";
+    cout << "Hello Remiss!";
     return 0;
 }
 `,
@@ -162,6 +170,8 @@ export const PlayGroundProvider = ({ children }) => {
         setFolders(updatedFolderList);
     };
 
+    // const {setRenameTrigger } = useContext(ModelContext);
+
 
     const renameFile = (newFileName, folderId, fileId) => {
         for (let i = 0; i < folders.length; i++) {
@@ -178,11 +188,27 @@ export const PlayGroundProvider = ({ children }) => {
             }
         }
 
-        setFolders([...folders]);
-        localStorage.setItem("data", JSON.stringify(folders));
+        const updated = [...folders];
+        setFolders(updated);
+        localStorage.setItem("data", JSON.stringify(updated));
     };
 
+    const updateFileCode = (folderId, fileId, newCode) => {
+        const updated = folders.map(folder => {
+            if (folder.id === folderId) {
+                return {
+                    ...folder,
+                    files: folder.files.map(file =>
+                        file.id === fileId ? { ...file, code: newCode } : file
+                    )
+                };
+            }
+            return folder;
+        });
 
+        setFolders(updated);
+        localStorage.setItem("data", JSON.stringify(updated));
+    };
 
 
 
@@ -200,7 +226,8 @@ export const PlayGroundProvider = ({ children }) => {
         renameFolder,
         renameFile,
         deleteFile,
-        createNewFile
+        createNewFile,
+        updateFileCode
     }
 
     return (

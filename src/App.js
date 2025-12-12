@@ -4,6 +4,12 @@ import { PlayGroundScreen } from "./screens/PlaygroundScreen";
 import { PlayGroundProvider } from "./provider/playground-provider";
 import { ModelProvider } from "./provider/ModelProvider";
 
+// const observerError = (e) =>
+//   e.message.includes("ResizeObserver loop completed") ? null : console.error(e);
+
+// window.addEventListener("error", observerError);
+
+
 function App() {
   return (
     <PlayGroundProvider>
@@ -15,7 +21,6 @@ function App() {
           </Routes>
         </BrowserRouter>
       </ModelProvider>
-
     </PlayGroundProvider>
 
   );

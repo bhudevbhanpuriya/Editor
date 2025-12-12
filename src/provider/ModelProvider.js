@@ -14,6 +14,9 @@ export const ModelProvider = ({children}) => {
     const [modelType , setModelType] = useState(null);
     const [modelPayload , setModelPayload] = useState(null);
 
+    const [renameTrigger , setRenameTrigger ] = useState(0);
+
+
     const closeModel = () => {
         setModelType(null);
         setModelPayload(null);
@@ -25,7 +28,9 @@ export const ModelProvider = ({children}) => {
         closeModel,
         activeModel:modelType,
         modelPayload,
-        setModelPayload
+        setModelPayload,
+        renameTrigger,
+        setRenameTrigger
     }
 
 

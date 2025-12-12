@@ -4,7 +4,7 @@ import { PlaygroundContext } from "../../playground-provider";
 
 
 export const RenameFileNameModel = () => {
-    const {closeModel , modelPayload} = useContext(ModelContext);
+    const {closeModel , modelPayload , setRenameTrigger} = useContext(ModelContext);
     const playgroundFeatures = useContext(PlaygroundContext);
 
 
@@ -12,6 +12,7 @@ export const RenameFileNameModel = () => {
         e.preventDefault();
         const newFileName = e.target.newFileName.value;
         playgroundFeatures.renameFile(newFileName,modelPayload.folderId, modelPayload.fileId );
+        setRenameTrigger(prev => prev+1);
         closeModel();
     }
 

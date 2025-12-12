@@ -4,6 +4,12 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+const observerError = (e) =>
+  e.message.includes("ResizeObserver loop completed") ? null : console.error(e);
+
+window.addEventListener("error", observerError);
+
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
