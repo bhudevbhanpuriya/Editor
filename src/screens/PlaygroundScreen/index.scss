@@ -337,6 +337,36 @@
     .output-container {
         border-bottom: none;
     }
+
+    .fullPage-loader{
+        // border:2px solid red;
+        position: fixed;
+        top: 0;bottom: 0;left: 0;right: 0;
+        background-color: rgba(0, 0, 0, 0.541);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .loader{
+            width: 100px;
+            height: 100px;
+            background-color: transparent;
+            border: 20px solid rgba(82,44,145,0.311);
+            border-width: 15px;
+            border-left-color: rgb(82, 44, 145);
+            animation: 0.8s loader infinite linear;
+            border-radius: 50%;
+        }
+    }
+}
+
+@keyframes loader {
+    from {
+        transform: rotate(0deg);
+    }
+    to{
+        transform: rotate(360deg);
+    }
 }
 
 // Custom scrollbar styling

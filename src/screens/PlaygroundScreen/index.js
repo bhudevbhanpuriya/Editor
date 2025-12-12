@@ -2,14 +2,17 @@ import { useParams } from "react-router-dom"
 import './index.scss'
 import { EditorContainer } from "./EditorContainer";
 import { Model } from "../../provider/models/model";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { makeSubmission } from "./service";
 
 
 export const PlayGroundScreen = () => {
     const params = useParams();
     const { fileId, folderId } = params;
-    const [input ,setInput] = useState('');
+    const [input ,setInput] = useState("");
     const outputRef = useRef();
+    const [showLoader , setShowLoader] = useState(false);
+    const [output , setOutput] = useState("");
     // console.log(params);
 
     const importInput = (e) => {
@@ -44,6 +47,32 @@ export const PlayGroundScreen = () => {
     }
 
 
+    const callback = ( {apiStatus , data , message} ) => {
+        if(apiStatus === 'loading'){
+            setShowLoader(true);
+        }
+        else if(apiStatus === 'error') {
+            setOutput("Something went wrong");
+            setShowLoader(false);
+        }
+        else if(apiStatus == "success"){
+            setShowLoader(false);
+            if(data.status.id === 3){
+                setOutput(atob(data.stdout || ""));
+            }
+            else{
+                setOutput(
+                    atob((data.err) || data.compile_output || "")
+                )
+            }
+        }
+    }
+
+    const runCode = useCallback(({code , language}) => {
+        makeSubmission(code ,input, language , callback);
+    }, [input])
+
+
     return <div className="playground-container">
 
         <div className="header-container">
@@ -53,7 +82,7 @@ export const PlayGroundScreen = () => {
 
 
         <div className="content-container">
-            <EditorContainer fileId={fileId} folderId={folderId} />
+            <EditorContainer fileId={fileId} folderId={folderId} runCode={runCode}/>
              
             <Model />
 
@@ -103,13 +132,22 @@ export const PlayGroundScreen = () => {
                     <textarea 
                         readOnly placeholder="Output Displays Here..." 
                         onChange={onChangeOutput}
+                        value = {output}
                     />
                 </div>
 
             </div>
         </div>
 
+        {showLoader && <div className="fullPage-loader">
+                <div className="loader">
+
+                </div>
+
+        </div>}
+
 
 
     </div>
 }
+

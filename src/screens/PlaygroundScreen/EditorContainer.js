@@ -6,7 +6,8 @@ import { languages } from "monaco-editor";
 import { useParams } from "react-router-dom";
 
 
-export const EditorContainer = ({ fileId, folderId }) => {
+
+export const EditorContainer = ({ fileId, folderId, runCode }) => {
 
     const { setModelPayload, openModel } = useContext(ModelContext);
 
@@ -18,15 +19,21 @@ export const EditorContainer = ({ fileId, folderId }) => {
 
     const [title, setTitle] = useState("");
 
-    const {renameTrigger , setRenameTrigger} = useContext(ModelContext);
+    const { renameTrigger, setRenameTrigger } = useContext(ModelContext);
 
-    const {updateFileCode} = useContext(PlaygroundContext);
+    const { updateFileCode } = useContext(PlaygroundContext);
 
-    const [isFullScreen ,setIsFullScreen] = useState(false);
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
     const codeRef = useRef();
 
-    
+    useEffect(() => {
+        codeRef.current = code;
+    }, [code]);
+
+
+
+
     useEffect(() => {
         const data = JSON.parse(localStorage.getItem("data"));
         const folder = data.find(folder => folder.id === folderId);
@@ -59,6 +66,7 @@ export const EditorContainer = ({ fileId, folderId }) => {
     const changeLanguage = (e) => {
         const lang = e.target.value;
         setCode(defaultCode[lang]);
+        // updateFileCode(folderId, fileId, code)
         setLanguage(lang);
     }
 
@@ -66,20 +74,20 @@ export const EditorContainer = ({ fileId, folderId }) => {
         const file = e.target.files[0];
         const fileType = file.type.includes('text');
 
-        if(fileType){
+        if (fileType) {
             const fileReader = new FileReader();
             fileReader.readAsText(file);
-            fileReader.onload = function(value){
+            fileReader.onload = function (value) {
                 const importedCode = value.target.result;
                 setCode(importedCode);
                 updateFileCode(folderId, fileId, importedCode);
             }
         }
-        else{
+        else {
             alert("Please choose a program file")
         }
         // console.log(fileType);
-        
+
     }
 
     const onChangeCode = (newCode) => {
@@ -89,17 +97,17 @@ export const EditorContainer = ({ fileId, folderId }) => {
     const exportCode = () => {
         const codeVal = codeRef.current?.trim();
         const exeLang = {
-            cpp:"cpp",
-            java:"java",
-            javascript:"js",
-            python:"py"
+            cpp: "cpp",
+            java: "java",
+            javascript: "js",
+            python: "py"
         }
 
-        if(!codeVal){
+        if (!codeVal) {
             alert("Please input before exporting");
         }
 
-        const codeBlob = new Blob([codeVal] , {type:"text/plain"});
+        const codeBlob = new Blob([codeVal], { type: "text/plain" });
 
         const downloadUrl = URL.createObjectURL(codeBlob);
 
@@ -112,12 +120,16 @@ export const EditorContainer = ({ fileId, folderId }) => {
     const saveCode = () => {
         const currCode = codeRef.current;
         setCode(currCode);
-        updateFileCode(folderId,fileId,currCode);
+        updateFileCode(folderId, fileId, currCode);
         alert('Code saved success')
     }
 
     const fullScreen = () => {
         setIsFullScreen(!isFullScreen);
+    }
+
+    const onRunCode = () => {
+        runCode({ code: codeRef.current, language });
     }
 
 
@@ -144,7 +156,7 @@ export const EditorContainer = ({ fileId, folderId }) => {
                             <option value='python'>Python</option>
                         </select>
                     )}
-                    
+
                     <select
                         name="theme"
                         value={theme}
@@ -175,7 +187,10 @@ export const EditorContainer = ({ fileId, folderId }) => {
                     options={editorOptions}
                     theme={theme}
                     value={code}
-                    onChange={(code) => {onChangeCode(code)}}
+                    onChange={(newCode) => { 
+                        onChangeCode(newCode); 
+                        setCode (newCode);
+                    }}
                 />
 
             </div>
@@ -210,7 +225,7 @@ export const EditorContainer = ({ fileId, folderId }) => {
                 </div>
 
 
-                <button>
+                <button onClick={onRunCode}>
                     <span className="material-icons">play_arrow</span>
                     Run Code
                 </button>
@@ -218,18 +233,19 @@ export const EditorContainer = ({ fileId, folderId }) => {
 
             </div>
 
+
         </div>
     )
 }
 
 
-const styles = {    
-    fullScreen : {
-        position : 'absolute',
-        top : 0,
-        left : 0,
-        right :0,
+const styles = {
+    fullScreen: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
         bottom: 0,
-        zIndex:10
+        zIndex: 10
     }
 }
