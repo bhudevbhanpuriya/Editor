@@ -170,9 +170,7 @@ export const PlayGroundProvider = ({ children }) => {
         setFolders(updatedFolderList);
     };
 
-    // const {setRenameTrigger } = useContext(ModelContext);
-
-
+    
     const renameFile = (newFileName, folderId, fileId) => {
         for (let i = 0; i < folders.length; i++) {
             if (folders[i].id === folderId) {

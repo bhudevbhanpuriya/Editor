@@ -22,6 +22,8 @@ export const EditorContainer = ({ fileId, folderId }) => {
 
     const {updateFileCode} = useContext(PlaygroundContext);
 
+    const [isFullScreen ,setIsFullScreen] = useState(false);
+
     const codeRef = useRef();
 
     
@@ -54,7 +56,8 @@ export const EditorContainer = ({ fileId, folderId }) => {
         setTheme(newtheme)
     }
 
-    const changeLanguage = (lang) => {
+    const changeLanguage = (e) => {
+        const lang = e.target.value;
         setCode(defaultCode[lang]);
         setLanguage(lang);
     }
@@ -68,7 +71,6 @@ export const EditorContainer = ({ fileId, folderId }) => {
             fileReader.readAsText(file);
             fileReader.onload = function(value){
                 const importedCode = value.target.result;
-                // console.log(importedCode);
                 setCode(importedCode);
                 updateFileCode(folderId, fileId, importedCode);
             }
@@ -107,8 +109,20 @@ export const EditorContainer = ({ fileId, folderId }) => {
         link.click();
     }
 
+    const saveCode = () => {
+        const currCode = codeRef.current;
+        setCode(currCode);
+        updateFileCode(folderId,fileId,currCode);
+        alert('Code saved success')
+    }
+
+    const fullScreen = () => {
+        setIsFullScreen(!isFullScreen);
+    }
+
+
     return (
-        <div className="editor-container">
+        <div className="editor-container" style={isFullScreen ? styles.fullScreen : {}}>
             <div className="editor-header">
                 <div className="title-section">
                     {title}
@@ -122,7 +136,7 @@ export const EditorContainer = ({ fileId, folderId }) => {
                         <select
                             name="language"
                             value={language}
-                            onChange={(e) => changeLanguage(e.target.value)}
+                            onChange={changeLanguage}
                         >
                             <option value='cpp'>Cpp</option>
                             <option value='java'>Java</option>
@@ -130,18 +144,7 @@ export const EditorContainer = ({ fileId, folderId }) => {
                             <option value='python'>Python</option>
                         </select>
                     )}
-                    {/* <select
-                        name="language"
-                        value={language}
-                        required
-                        onChange={(e) => changeLanguage(e.target.value)}
-                    >
-                        <option value='cpp'>Cpp</option>
-                        <option value='java'>Java</option>
-                        <option value='javascript'>JavaScript</option>
-                        <option value='python'>Python</option>
-                    </select> */}
-
+                    
                     <select
                         name="theme"
                         value={theme}
@@ -151,7 +154,7 @@ export const EditorContainer = ({ fileId, folderId }) => {
                         <option value='vs-light'>vscode-light</option>
                     </select>
 
-                    <button>
+                    <button onClick={saveCode}>
                         Save Code
                     </button>
 
@@ -172,16 +175,16 @@ export const EditorContainer = ({ fileId, folderId }) => {
                     options={editorOptions}
                     theme={theme}
                     value={code}
-                    onChange={onChangeCode(code)}
+                    onChange={(code) => {onChangeCode(code)}}
                 />
 
             </div>
 
             <div className="footer">
-                <div className="btn">
+                <button className="btn" onClick={fullScreen}>
                     <span className="material-icons">crop_free</span>
-                    <span>Full Screen</span>
-                </div>
+                    <span>{isFullScreen ? "Minimize" : "Full Screen"}</span>
+                </button>
 
                 <label className="import-btn">
                     <input
@@ -217,4 +220,16 @@ export const EditorContainer = ({ fileId, folderId }) => {
 
         </div>
     )
+}
+
+
+const styles = {    
+    fullScreen : {
+        position : 'absolute',
+        top : 0,
+        left : 0,
+        right :0,
+        bottom: 0,
+        zIndex:10
+    }
 }

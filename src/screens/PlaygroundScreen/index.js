@@ -47,7 +47,7 @@ export const PlayGroundScreen = () => {
     return <div className="playground-container">
 
         <div className="header-container">
-            <img src="/logo.png" />
+            {/* <img src="/logo.png" /> */}
             <h1 className="bitcount">CODEIN.it</h1>
         </div>
 
