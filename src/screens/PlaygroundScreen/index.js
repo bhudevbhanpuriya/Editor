@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import './index.scss'
 import { EditorContainer } from "./EditorContainer";
 import { Model } from "../../provider/models/model";
@@ -13,6 +13,7 @@ export const PlayGroundScreen = () => {
     const outputRef = useRef();
     const [showLoader , setShowLoader] = useState(false);
     const [output , setOutput] = useState("");
+    const navigate = useNavigate();
     // console.log(params);
 
     const importInput = (e) => {
@@ -72,12 +73,18 @@ export const PlayGroundScreen = () => {
         makeSubmission(code ,input, language , callback);
     }, [input])
 
+    const backToHomePage = () => {
+        navigate(`/`);
+    }
+
 
     return <div className="playground-container">
 
-        <div className="header-container">
-            {/* <img src="/logo.png" /> */}
+        <div className="header-container" >
+            <div onClick={backToHomePage} className="logo">
+            <img src="/logo2.png" />
             <h1 className="bitcount">CODEIN.it</h1>
+            </div>
         </div>
 
 
