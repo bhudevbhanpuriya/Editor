@@ -1,70 +1,88 @@
-# Getting Started with Create React App
+CODEIN.it 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+CODEIN.it is a browser-based code playground focused on delivering a smooth, editor-first experience for writing, running, and organizing code online.
 
-## Available Scripts
+It is designed as a foundation for a larger developer platform, starting with core editor and execution workflows and steadily moving toward richer features and long-term scalability.
 
-In the project directory, you can run:
+🌐 Live Demo
 
-### `npm start`
+The application is deployed and accessible online:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+👉 Live Preview: (Vercel link will be added here)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+🧩 Overview
 
-### `npm test`
+CODEIN.it combines a modern in-browser editor with real-time code execution and basic project organization tools. The interface is intentionally familiar and minimal, allowing users to focus on writing and testing code without unnecessary distractions.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The project emphasizes clean architecture and extensibility, making it suitable for gradual feature expansion.
 
-### `npm run build`
+🚀 Features
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Professional in-browser code editor with an IDE-like experience
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Real-time code execution with support for custom input and output
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+File and folder-based workspace for organizing code
 
-### `npm run eject`
+Create, rename, save, and manage files easily
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Import and export code and input/output as text files
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Full-screen editor mode for focused development
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Persistent storage to retain work across browser sessions
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Visual execution feedback while code is running
 
-## Learn More
+Clean, familiar UI inspired by modern developer tools
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+🔮 Project Direction
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+CODEIN.it is actively evolving. While the current version focuses on core usability and execution workflows, development is moving toward building a more complete platform.
 
-### Code Splitting
+Planned areas of growth include:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Integration of a full-fledged backend with a persistent database
 
-### Analyzing the Bundle Size
+OAuth-based authentication and user accounts
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Cloud-synced workspaces
 
-### Making a Progressive Web App
+Expanded tooling and execution capabilities
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Performance, scalability, and security improvements
 
-### Advanced Configuration
+Ongoing UI and UX refinements
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The existing structure is intentionally designed to support these additions without major architectural changes.
 
-### Deployment
+🛠 Tech Stack
+Languages
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+JavaScript
 
-### `npm run build` fails to minify
+HTML
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+CSS / SCSS
+
+Frameworks & Libraries
+
+React.js
+
+Monaco Editor
+
+React Router
+
+React Context API
+
+Services & Tooling
+
+Judge0 Community Edition API
+
+Browser Local Storage
+
+Google Material Icons
+
+🎯 Motivation
+
+This project was built as a hands-on effort to better understand how modern developer tools are designed and integrated. It balances learning with practical implementation and is intended to grow organically through continuous improvement.
