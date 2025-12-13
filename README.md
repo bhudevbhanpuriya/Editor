@@ -8,7 +8,7 @@ It is designed as a foundation for a larger developer platform, starting with co
 
 The application is deployed and accessible online:
 
-👉 Live Preview: (Vercel link will be added here)
+👉 Live Preview: https://editor-eight-tan.vercel.app/
 
 🧩 Overview
 
