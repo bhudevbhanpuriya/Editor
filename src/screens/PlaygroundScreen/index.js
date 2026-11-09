@@ -2,108 +2,75 @@ import { useNavigate, useParams } from "react-router-dom"
 import './index.scss'
 import { EditorContainer } from "./EditorContainer";
 import { Model } from "../../provider/models/model";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { makeSubmission } from "./service";
-
+import { downloadTextFile, readPickedFile } from "../../utils/file";
+import { useNotify } from "../../provider/NotificationProvider";
 
 export const PlayGroundScreen = () => {
-    const params = useParams();
-    const { fileId, folderId } = params;
-    const [input ,setInput] = useState("");
-    const outputRef = useRef();
-    const [showLoader , setShowLoader] = useState(false);
-    const [output , setOutput] = useState("");
+    const { fileId, folderId } = useParams();
+    const [input, setInput] = useState("");
+    const [showLoader, setShowLoader] = useState(false);
+    const [output, setOutput] = useState("");
     const navigate = useNavigate();
-    // console.log(params);
+    const notify = useNotify();
 
     const importInput = (e) => {
-       const file = e.target.files[0];
-       const fileType = file.type.includes('text');
-       if(!fileType){
-        alert('input text file');
-       }
-       else{
-        const fileReader = new FileReader();
-        fileReader.readAsText(file);
-        fileReader.onload = (value) => {
-            const importedInput = value.target.result;
-            setInput(importedInput);
-        }
-       }
-    }
-
-    const onChangeOutput = (newOutput) =>{
-        outputRef.current = newOutput;
+        readPickedFile(e)
+            .then(setInput)
+            .catch(error => {
+                if (error.message !== 'No file selected.') notify(error.message, 'error');
+            });
     }
 
     const exportOutput = () => {
-        const output = outputRef.current;
-
-        const blob = new Blob([output],{type:'text/plain'})
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a")
-        link.href = url
-        link.download = `output.txt`;
-        link.click();
+        if (!output.trim()) {
+            notify("There is no output to export yet.", 'error');
+            return;
+        }
+        downloadTextFile(output, 'output.txt');
     }
 
-
-    const callback = ( {apiStatus , data , message} ) => {
-        if(apiStatus === 'loading'){
+    const callback = useCallback(({ apiStatus, output: result, message }) => {
+        if (apiStatus === 'loading') {
             setShowLoader(true);
+            return;
         }
-        else if(apiStatus === 'error') {
-            setOutput("Something went wrong");
-            setShowLoader(false);
-        }
-        else if(apiStatus == "success"){
-            setShowLoader(false);
-            if(data.status.id === 3){
-                setOutput(atob(data.stdout || ""));
-            }
-            else{
-                setOutput(
-                    atob((data.err) || data.compile_output || "")
-                )
-            }
-        }
-    }
 
-    const runCode = useCallback(({code , language}) => {
-        makeSubmission(code ,input, language , callback);
-    }, [input])
+        setShowLoader(false);
+        setOutput(apiStatus === 'success' ? result : (message || "Something went wrong"));
+    }, []);
+
+    const runCode = useCallback(({ code, language }) => {
+        makeSubmission(code, input, language, callback);
+    }, [input, callback])
 
     const backToHomePage = () => {
         navigate(`/`);
     }
 
-
     return <div className="playground-container">
 
-        <div className="header-container" >
-            <div onClick={backToHomePage} className="logo">
-            <img src="/logo2.png" />
-            <h1 className="bitcount">CODEIN.it</h1>
-            </div>
+        <div className="header-container">
+            <button type="button" onClick={backToHomePage} className="logo">
+                <img src="/logo2.png" alt="" />
+                <h1 className="bitcount">CODEIN.it</h1>
+            </button>
         </div>
 
-
         <div className="content-container">
-            <EditorContainer fileId={fileId} folderId={folderId} runCode={runCode}/>
-             
+            <EditorContainer fileId={fileId} folderId={folderId} runCode={runCode} />
+
             <Model />
 
             <div className="input-container">
-                {/* <h1>input</h1> */}
-
                 <div className="header">
                     <h4>Input :</h4>
 
                     <label className="upload-btn">
-                        <input 
+                        <input
                             type="file"
-                            id = 'import-code'
-                            onChange = {importInput}                        
+                            onChange={importInput}
                         />
 
                         <span className="material-icons">download</span>
@@ -111,20 +78,17 @@ export const PlayGroundScreen = () => {
                     </label>
                 </div>
 
-
                 <div className="text-area">
                     <textarea
-                        placeholder="Enter input here..." 
-                        value = {input}
+                        placeholder="Enter input here..."
+                        aria-label="Program input"
+                        value={input}
                         onChange={(e) => setInput(e.target.value)}
                     />
                 </div>
-
             </div>
 
             <div className="output-container">
-                {/* <h1>output</h1> */}
-
                 <div className="header">
                     <h4>Output :</h4>
 
@@ -134,27 +98,20 @@ export const PlayGroundScreen = () => {
                     </button>
                 </div>
 
-
                 <div className="text-area">
-                    <textarea 
-                        readOnly placeholder="Output Displays Here..." 
-                        onChange={onChangeOutput}
-                        value = {output}
+                    <textarea
+                        readOnly
+                        placeholder="Output Displays Here..."
+                        aria-label="Program output"
+                        value={output}
                     />
                 </div>
-
             </div>
         </div>
 
-        {showLoader && <div className="fullPage-loader">
-                <div className="loader">
-
-                </div>
-
+        {showLoader && <div className="fullPage-loader" role="status" aria-label="Running code">
+            <div className="loader" />
         </div>}
-
-
 
     </div>
 }
-

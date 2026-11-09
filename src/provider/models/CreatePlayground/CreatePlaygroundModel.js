@@ -1,55 +1,42 @@
-import { useContext } from "react"
-import "./createPlaygroundModel.scss"
+import { useContext, useState } from "react"
 import { ModelContext } from "../../ModelProvider"
-import { PlaygroundContext, PlayGroundProvider } from "../../playground-provider"
+import { PlaygroundContext } from "../../playground-provider"
+import { LanguageSelect, ModelShell } from "../ModelShell"
 
 export const CreatePLaygroundModel = () => {
-    const modelFeature = useContext(ModelContext)
-    const playgroundFeatures = useContext(PlaygroundContext)
-    const closeModel = () =>{
-        modelFeature.closeModel()
+    const { closeModel } = useContext(ModelContext);
+    const { createNewPlayground } = useContext(PlaygroundContext);
+    const [error, setError] = useState("");
+
+    const onSubmitModel = ({ folderName, fileName, language }) => {
+        if (!folderName || !fileName) {
+            setError("Folder name and file name cannot be empty.");
+            return;
+        }
+
+        createNewPlayground({ folderName, fileName, language });
+        closeModel();
     }
 
-    const onSubmitModel = (e) => {
-        e.preventDefault();
-        const folderName = e.target.folderName.value;
-        const filename = e.target.fileName.value;
-        const language = e.target.language.value;
-        
-        playgroundFeatures.createNewPlayground({
-            folderName,
-            filename,
-            language
-        })
-        closeModel()
-    }
-
-
-    return <div className="model-container">
-        <form className="modelBody" onSubmit={onSubmitModel}>
-            <div className="header">
-                <h1 className="bitcount">Create New Playground</h1>
-                <span onClick={closeModel} className="material-icons">close</span>
-            </div>
+    return (
+        <ModelShell
+            title="Create New Playground"
+            submitLabel="Create Playground"
+            onSubmit={onSubmitModel}
+            error={error}
+        >
             <div className="input">
                 <p>Enter Folder Name</p>
-                <input name='folderName' required/>
+                <input name="folderName" aria-label="Folder name" required />
             </div>
             <div className="input">
                 <p>Enter Card Name</p>
-                <input name='fileName' required/>
+                <input name="fileName" aria-label="File name" required />
             </div>
             <div className="input">
-                <select name="language" required>
-                    <option value='cpp'>Cpp</option>
-                    <option value='java'>Java</option>
-                    <option value='javascript'>JavaScript</option>
-                    <option value='python'>Python</option>
-                </select>
-                <button type='submit'>
-                    Create Playground
-                </button>
+                <p>Language</p>
+                <LanguageSelect />
             </div>
-        </form>
-    </div>
+        </ModelShell>
+    );
 }

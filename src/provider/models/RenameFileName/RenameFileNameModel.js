@@ -1,35 +1,35 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ModelContext } from "../../ModelProvider";
-import { PlaygroundContext } from "../../playground-provider";
-
+import { findFile, PlaygroundContext } from "../../playground-provider";
+import { ModelShell } from "../ModelShell";
 
 export const RenameFileNameModel = () => {
-    const {closeModel , modelPayload , setRenameTrigger} = useContext(ModelContext);
-    const playgroundFeatures = useContext(PlaygroundContext);
+    const { closeModel, modelPayload } = useContext(ModelContext);
+    const { folders, renameFile } = useContext(PlaygroundContext);
+    const [error, setError] = useState("");
 
+    const { file } = findFile(folders, modelPayload?.folderId, modelPayload?.fileId);
 
-    const onSubmitModel = (e) => {
-        e.preventDefault();
-        const newFileName = e.target.newFileName.value;
-        playgroundFeatures.renameFile(newFileName,modelPayload.folderId, modelPayload.fileId );
-        setRenameTrigger(prev => prev+1);
+    const onSubmitModel = ({ newFileName }) => {
+        if (!newFileName) {
+            setError("File name cannot be empty.");
+            return;
+        }
+
+        renameFile(newFileName, modelPayload.folderId, modelPayload.fileId);
         closeModel();
     }
 
-    return <div className='model-container'>
-        <form className='modelBody' onSubmit={onSubmitModel}>
-            <div className='header'>
-                <h1 className="bitcount">Rename File</h1>
-                <span onClick={closeModel} className="material-icons">close</span>
+    return (
+        <ModelShell
+            title="Rename File"
+            submitLabel="Rename File"
+            onSubmit={onSubmitModel}
+            error={error}
+        >
+            <div className="input">
+                <input required name="newFileName" aria-label="New file name" defaultValue={file?.title ?? ""} />
             </div>
-            
-            <div className='input' >
-                <input required name="newFileName"></input>
-                <button type='submit'>
-                    Rename Folder
-                </button>
-            </div>
-        </form>
-    </div>
+        </ModelShell>
+    );
 }
-

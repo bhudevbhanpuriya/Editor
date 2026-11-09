@@ -1,0 +1,221 @@
+// Remote peer colours.
+//
+// A fixed palette indexed by hash(clientId) % 8 rather than a colour string per
+// client: every peer renders the same person in the same colour, and no
+// per-client <style> tag has to be injected and cleaned up.
+$peer-colors: #8d6bc8, #4caf7d, #e5b34b, #e5834b, #4bb8e5, #e56ba8, #7de5c0, #a88de5;
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.presence-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+}
+
+.presence-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    border-radius: 999px;
+
+    &::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    &--connected {
+        color: var(--success);
+        background: rgba(76, 175, 125, 0.12);
+    }
+
+    &--connecting,
+    &--disconnected {
+        color: var(--warning);
+        background: rgba(229, 179, 75, 0.12);
+    }
+
+    &--error {
+        color: var(--danger);
+        background: rgba(229, 83, 75, 0.12);
+    }
+}
+
+.presence-avatars {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.presence-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    margin-left: -6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #16161a;
+    border-radius: 50%;
+    border: 2px solid var(--bg-surface);
+
+    &:first-child {
+        margin-left: 0;
+    }
+
+    @each $color in $peer-colors {
+        $i: index($peer-colors, $color) - 1;
+
+        &--#{$i} {
+            background: $color;
+        }
+    }
+}
+
+.presence-hint {
+    font-size: 11.5px;
+    color: var(--text-faint);
+    white-space: nowrap;
+}
+
+.presence-leave {
+    padding: 5px 12px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: color var(--transition), border-color var(--transition);
+
+    &:hover {
+        color: var(--text-strong);
+        border-color: var(--accent-line);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Remote cursors and selections, rendered as Monaco decorations.
+// ---------------------------------------------------------------------------
+
+@each $color in $peer-colors {
+    $i: index($peer-colors, $color) - 1;
+
+    .remote-selection--#{$i} {
+        background: rgba($color, 0.22);
+    }
+
+    .remote-caret--#{$i} {
+        border-left: 2px solid $color;
+        // Zero-width decorations still need a box to paint into.
+        margin-left: -1px;
+        pointer-events: none;
+    }
+
+    .remote-caret-label--#{$i}::after {
+        background: $color;
+    }
+}
+
+.remote-caret-label::after {
+    content: attr(data-name);
+    position: absolute;
+    top: -1.15em;
+    left: -2px;
+    padding: 1px 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #16161a;
+    white-space: nowrap;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+// The share control lives in the editor header alongside the other controls.
+.share-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color var(--transition), color var(--transition), border-color var(--transition);
+
+    .material-icons {
+        font-size: 17px;
+    }
+
+    &:hover {
+        background: var(--accent-soft);
+        border-color: var(--accent-line);
+        color: var(--text-strong);
+    }
+}
+
+// Share modal extras.
+.model-container .modelBody {
+    .copy-btn {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 14px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+        background: var(--bg-raised);
+        color: var(--text);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: background-color var(--transition), border-color var(--transition);
+
+        .material-icons {
+            font-size: 16px;
+        }
+
+        &:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent-line);
+        }
+    }
+
+    .share-warning {
+        font-size: 0.76rem !important;
+        line-height: 1.6;
+        color: var(--text-faint) !important;
+        white-space: normal !important;
+    }
+}

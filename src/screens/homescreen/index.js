@@ -5,19 +5,19 @@ import { useContext } from "react";
 import { ModelConstant, ModelContext } from "../../provider/ModelProvider";
 
 export const HomeScreen = () => {
-    const modelFeature = useContext(ModelContext);
+    const { openModel } = useContext(ModelContext);
 
     const openCreatePlaygroundModel = () => {
-        modelFeature.openModel(ModelConstant.CREATE_PLAYGROUND);
+        openModel(ModelConstant.CREATE_PLAYGROUND);
     }
+
     return (
         <div className="home-container">
 
             <div className="left-container">
                 <div className="item-container">
-
-                    <img src='logo.png' />
-                    <h2 className= "bitcount" >CODEIN.it</h2>
+                    <img src='logo.png' alt='CODEIN.it logo' />
+                    <h2 className="bitcount">CODEIN.it</h2>
                     <h3>Code | Debug | Run </h3>
 
                     <button onClick={openCreatePlaygroundModel}>
@@ -26,10 +26,11 @@ export const HomeScreen = () => {
                     </button>
                 </div>
             </div>
-            <div className="right-container">
-                <RightComponent />
-                <Model />
-            </div>
+
+            {/* RightComponent renders its own .right-container; wrapping it in a
+                second one nested two full-height scroll areas. */}
+            <RightComponent />
+            <Model />
 
         </div>
     );

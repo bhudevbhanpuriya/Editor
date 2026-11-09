@@ -1,0 +1,37 @@
+# Development override: the CRA dev server with hot reload instead of the
+# nginx image, mirroring `npm run dev`.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Source is bind-mounted, but node_modules is not — it is installed inside the
+# image so native builds match the container's platform, and an anonymous
+# volume keeps the host directory from shadowing it.
+
+services:
+  web:
+    build:
+      context: .
+      target: build
+    command: npm start
+    working_dir: /app
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - /app/node_modules
+    environment:
+      REACT_APP_COLLAB_WS_URL: ${REACT_APP_COLLAB_WS_URL:-ws://localhost:1234}
+      REACT_APP_COLLAB_ENABLED: ${REACT_APP_COLLAB_ENABLED:-true}
+      REACT_APP_JUDGE0_URL: ${REACT_APP_JUDGE0_URL:-https://ce.judge0.com}
+      REACT_APP_JUDGE0_HOST: ${REACT_APP_JUDGE0_HOST:-}
+      REACT_APP_JUDGE0_KEY: ${REACT_APP_JUDGE0_KEY:-}
+      # Polling — inotify events do not cross the bind mount on macOS/Windows.
+      WATCHPACK_POLLING: "true"
+
+  collab:
+    environment:
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+    volumes:
+      - ./server/index.js:/app/index.js
+      - ./server/rooms.js:/app/rooms.js

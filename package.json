@@ -7,26 +7,39 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-router-dom": "^7.10.1",
     "react-scripts": "5.0.1",
-    "saas": "^1.0.0",
-    "uuid": "^13.0.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "y-protocols": "^1.0.7",
+    "y-websocket": "2.1.0",
+    "yjs": "^13.6.31"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test:ci": "react-scripts test --watchAll=false",
+    "server": "npm --prefix server start",
+    "server:install": "npm --prefix server install",
+    "dev": "concurrently -n web,ws -c cyan,magenta \"npm start\" \"npm run server\""
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
     ]
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^react-router-dom$": "<rootDir>/node_modules/react-router-dom/dist/index.js",
+      "^react-router/dom$": "<rootDir>/node_modules/react-router/dist/development/dom-export.js",
+      "^react-router$": "<rootDir>/node_modules/react-router/dist/development/index.js",
+      "^lib0/(?!dist/)(.*)$": "<rootDir>/node_modules/lib0/dist/$1.cjs",
+      "^y-protocols/(?!dist/)(.*)$": "<rootDir>/node_modules/y-protocols/dist/$1.cjs"
+    }
   },
   "browserslist": {
     "production": [
@@ -41,8 +54,13 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/user-event": "^14.6.1",
+    "concurrently": "^9.2.4",
     "resolve-url-loader": "^3.1.5",
-    "sass": "^1.94.2",
+    "sass": "^1.77.8",
     "sass-loader": "^16.0.6"
+  },
+  "overrides": {
+    "yjs": "^13.6.31"
   }
 }

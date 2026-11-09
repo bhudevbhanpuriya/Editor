@@ -1,5 +1,64 @@
-body {
+/* @import must come before any rule or the browser discards it. */
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@100..900&display=swap');
+
+/*
+ * Design tokens.
+ *
+ * Same purple identity as before, but with a deeper base for contrast plus
+ * gradient, glow and elevation tokens so surfaces can have some depth instead
+ * of every panel sitting on the same flat grey.
+ */
+:root {
+  /* Surfaces, from furthest back to closest */
+  --bg-base: #131316;
+  --bg-surface: #1c1c21;
+  --bg-raised: #26262d;
+  --bg-editor: #16161a;
+
+  --border: #292930;
+  --border-strong: #3a3a45;
+
+  --text-strong: #ffffff;
+  --text: #e8e8ec;
+  --text-muted: #9b9ba6;
+  --text-faint: #74747f;
+
+  --accent: #6d4ba8;
+  --accent-hover: #7c5bb8;
+  --accent-bright: #8d6bc8;
+  --accent-soft: rgba(141, 107, 200, 0.14);
+  --accent-line: rgba(141, 107, 200, 0.32);
+
+  --accent-gradient: linear-gradient(135deg, #8d6bc8 0%, #6d4ba8 100%);
+  --surface-gradient: linear-gradient(180deg, #22222a 0%, #1c1c21 100%);
+
+  --success: #4caf7d;
+  --warning: #e5b34b;
+  --danger: #e5534b;
+
+  /* Depth */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.55);
+  --glow: 0 0 22px rgba(109, 75, 168, 0.4);
+  --glow-focus: 0 0 0 3px rgba(141, 107, 200, 0.25);
+
+  --radius-sm: 8px;
+  --radius: 10px;
+  --radius-lg: 16px;
+
+  --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+
+  --transition: 0.18s ease;
+}
+
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -7,29 +66,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
   height: 100%;
   overflow: hidden;
+  background: var(--bg-base);
+  color: var(--text);
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: var(--font-mono);
 }
-@import url('https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@100..900&display=swap');
 
 .bitcount {
   font-family: "Bitcount Prop Single", system-ui;
   font-optical-sizing: auto;
-  font-weight: 400; /* example */
+  font-weight: 400;
   font-style: normal;
 }
 
-/* body {
-  font-family: "Bitcount Prop Single", system-ui;
-} */
-
-
-
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-} 
+/* A single visible focus treatment for the whole app. */
+:focus-visible {
+  outline: 2px solid var(--accent-bright);
+  outline-offset: 2px;
+}

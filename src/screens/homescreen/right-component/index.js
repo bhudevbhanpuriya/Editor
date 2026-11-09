@@ -1,31 +1,92 @@
 import { useContext } from 'react';
-import { PlaygroundContext, PlayGroundProvider } from '../../../provider/playground-provider';
+import { PlaygroundContext } from '../../../provider/playground-provider';
 import './index.scss'
 import { ModelConstant, ModelContext } from '../../../provider/ModelProvider';
 import { useNavigate } from 'react-router-dom';
+import { useConfirm } from '../../../provider/ConfirmProvider';
 
+const FileCard = ({ file, folderId }) => {
+    const { deleteFile } = useContext(PlaygroundContext);
+    const { openModel } = useContext(ModelContext);
+    const navigate = useNavigate();
+    const confirm = useConfirm();
+
+    const openPlaygroundScreen = () => {
+        navigate(`/playground/${file.id}/${folderId}`);
+    }
+
+    // Without stopPropagation these bubble to the card and navigate into the
+    // playground of the file that was just deleted/renamed.
+    const openRenameFileModel = (e) => {
+        e.stopPropagation();
+        openModel(ModelConstant.RENAME_FILE, { fileId: file.id, folderId });
+    }
+
+    const onDeleteFile = async (e) => {
+        e.stopPropagation();
+        const ok = await confirm({
+            title: 'Delete file',
+            message: `Delete "${file.title}"? This cannot be undone.`,
+            confirmLabel: 'Delete',
+            destructive: true
+        });
+        if (ok) deleteFile(folderId, file.id);
+    }
+
+    return (
+        <div
+            className='card'
+            role='button'
+            tabIndex={0}
+            onClick={openPlaygroundScreen}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openPlaygroundScreen();
+                }
+            }}
+        >
+            <img src={'./logo.png'} alt='' />
+
+            <div className='title-language'>
+                <span> {file.title}</span>
+                <span> Language: {file.language}</span>
+            </div>
+
+            <div className='icons'>
+                <button type='button' aria-label={`Delete ${file.title}`} onClick={onDeleteFile}>
+                    <span className='material-icons'>delete</span>
+                </button>
+                <button type='button' aria-label={`Rename ${file.title}`} onClick={openRenameFileModel}>
+                    <span className='material-icons'>edit</span>
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const Folder = ({ folderTitle, cards, folderId }) => {
-    const playgroundFeatures = useContext(PlaygroundContext);
-    const { setModelPayload, openModel } = useContext(ModelContext);
-    const navigate = useNavigate();
+    const { deleteFolder } = useContext(PlaygroundContext);
+    const { openModel } = useContext(ModelContext);
+    const confirm = useConfirm();
 
-    const deleteFolder = () => {
-        playgroundFeatures.deleteFolder(folderId);
+    const onDeleteFolder = async () => {
+        const ok = await confirm({
+            title: 'Delete folder',
+            message: `Delete the folder "${folderTitle}" and everything in it? This cannot be undone.`,
+            confirmLabel: 'Delete',
+            destructive: true
+        });
+        if (ok) deleteFolder(folderId);
     }
 
     const openRenameFolderModel = () => {
-        // playgroundFeatures.renameFolder(id);
-        // console.log(id);
-        setModelPayload({folderId : folderId});
-        openModel(ModelConstant.RENAME_FOLDER);
+        openModel(ModelConstant.RENAME_FOLDER, { folderId });
     }
 
     const openCreateNewFile = () => {
-        setModelPayload(folderId);
-        openModel(ModelConstant.CREATE_FILE);
+        openModel(ModelConstant.CREATE_FILE, { folderId });
     }
-
 
     return <div className='folder-container'>
         <div className='header'>
@@ -34,84 +95,54 @@ const Folder = ({ folderTitle, cards, folderId }) => {
                 <span>{folderTitle}</span>
             </div>
             <div className='icons'>
-                <span className='material-icons' onClick={deleteFolder}>delete</span>
-                <span className='material-icons' onClick={openRenameFolderModel}>edit</span>
+                <button type='button' aria-label={`Delete folder ${folderTitle}`} onClick={onDeleteFolder}>
+                    <span className='material-icons'>delete</span>
+                </button>
+                <button type='button' aria-label={`Rename folder ${folderTitle}`} onClick={openRenameFolderModel}>
+                    <span className='material-icons'>edit</span>
+                </button>
                 <button className='button' onClick={openCreateNewFile}>
                     <span className='material-icons'>add</span>
                     <span>New Playground</span>
-
                 </button>
-
             </div>
         </div>
         <div className='cards-container'>
-            {
-
-                cards?.map((file, index) => {
-
-                    const openPlaygroundScreen = () => {
-                        // console.log(`file id is `,file.id);
-                        // console.log(`folder id is`,folderId);
-                        navigate(`/playground/${file.id}/${folderId}`);
-                    }
-
-                    const openRenameFileModel = () => {
-                        setModelPayload({fileId : file.id ,folderId: folderId})
-                        openModel(ModelConstant.RENAME_FILE);
-                    }
-
-                    const deleteFile = () => {
-                        // setModelPayload({file: file.id});
-                        playgroundFeatures.deleteFile(file.id);
-                    }
-
-                    return (
-                        <div className='card' key={index} onClick={openPlaygroundScreen}>
-                            <img src={'./logo.png'} alt='logo' />
-
-                            <div className='title-language'>
-                                <span> {file?.title}</span>
-                                <span> Language: {file?.language}</span>
-                            </div>
-
-                            <div className='icons'>
-                                <span className='material-icons' onClick={deleteFile}>delete</span>
-                                <span className='material-icons' onClick={openRenameFileModel}>edit</span>
-                            </div>
-                        </div>
-                    );
-
-                })}
-
+            {cards?.length
+                ? cards.map(file => (
+                    <FileCard key={file.id} file={file} folderId={folderId} />
+                ))
+                : <p className='empty-state'>No files yet — create one to get started.</p>
+            }
         </div>
     </div>
 }
 
-
 export const RightComponent = () => {
     const { folders } = useContext(PlaygroundContext);
-    const modelFeatures = useContext(ModelContext);
+    const { openModel } = useContext(ModelContext);
 
     const openCreateNewFolderModel = () => {
-        modelFeatures.openModel(ModelConstant.CREATE_FOLDER)
+        openModel(ModelConstant.CREATE_FOLDER);
     }
 
     return (
         <div className='right-container'>
             <div className='header'>
-                <h1 >My PlayGround</h1>
+                <h1>My PlayGround</h1>
                 <button className='add-folder-container' onClick={openCreateNewFolderModel}>
                     <span className='material-icons'>add</span>
                     <span>New Folder</span>
                 </button>
             </div>
-            {
-                folders?.map((folder, index) => {
-                    if (!folder) return null;
-                    return <Folder folderTitle={folder?.title} cards={folder?.files} folderId={folder.id} key={folder.id} />
-                })
-            }
+            {folders?.map(folder => (
+                <Folder
+                    key={folder.id}
+                    folderTitle={folder.title}
+                    cards={folder.files}
+                    folderId={folder.id}
+                />
+            ))}
         </div>
-
     );
 }

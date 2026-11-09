@@ -1,0 +1,271 @@
+// Shared styles for every model. Previously each model shipped its own
+// near-identical copy of this file (~860 duplicated lines in total).
+
+.model-container {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+
+    background-color: rgba(10, 10, 12, 0.68);
+    backdrop-filter: blur(5px);
+
+    animation: fadeIn 0.15s ease-out;
+
+    .modelBody {
+        position: relative;
+        width: 470px;
+        max-width: 100%;
+        padding: 26px;
+        overflow: hidden;
+
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        background: var(--surface-gradient);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg), var(--glow);
+        font-family: var(--font-mono);
+        color: var(--text);
+
+        animation: scaleIn 0.16s ease-out;
+
+        // Accent rule across the top edge.
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-gradient);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+
+            h1 {
+                font-size: 1.25rem;
+                font-weight: 500;
+                color: var(--text-strong);
+                letter-spacing: 0.01em;
+            }
+
+            .close-btn {
+                display: flex;
+                background: none;
+                border: none;
+                padding: 5px;
+                color: var(--text-faint);
+                cursor: pointer;
+                line-height: 0;
+                border-radius: var(--radius-sm);
+                transition: background-color var(--transition), color var(--transition);
+
+                &:hover {
+                    background: var(--accent-soft);
+                    color: var(--text-strong);
+                }
+            }
+        }
+
+        .error {
+            padding: 9px 12px;
+            margin: -10px 0 0;
+            color: var(--danger);
+            font-size: 0.8rem;
+            background: rgba(229, 83, 75, 0.1);
+            border: 1px solid rgba(229, 83, 75, 0.28);
+            border-radius: var(--radius-sm);
+        }
+
+        .confirm-message {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.65;
+        }
+
+        p {
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .input {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+
+            .input-box {
+                display: flex;
+                flex: 1;
+                gap: 14px;
+            }
+
+            input,
+            select {
+                flex: 1;
+                min-width: 0;
+                padding: 11px 13px;
+                font-family: inherit;
+                font-size: 0.87rem;
+
+                background: var(--bg-base);
+                color: var(--text);
+                border: 1px solid var(--border-strong);
+                border-radius: var(--radius-sm);
+                transition: border-color var(--transition), box-shadow var(--transition);
+
+                &::placeholder {
+                    color: var(--text-faint);
+                }
+
+                &:focus {
+                    outline: none;
+                    border-color: var(--accent-line);
+                    box-shadow: var(--glow-focus);
+                }
+            }
+
+            select {
+                flex: 0 0 155px;
+                cursor: pointer;
+            }
+        }
+
+        button[type='submit'] {
+            align-self: flex-end;
+            padding: 11px 22px;
+
+            font-family: inherit;
+            font-size: 0.87rem;
+            font-weight: 600;
+
+            background: var(--accent-gradient);
+            color: var(--text-strong);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow var(--transition);
+
+            &:hover {
+                box-shadow: var(--shadow-md), var(--glow);
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                box-shadow: none;
+            }
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+
+            button {
+                padding: 11px 22px;
+                font-family: inherit;
+                font-size: 0.87rem;
+                font-weight: 600;
+                border-radius: var(--radius-sm);
+                border: 1px solid transparent;
+                cursor: pointer;
+                transition: background-color var(--transition), box-shadow var(--transition);
+
+                &.cancel {
+                    background: transparent;
+                    border-color: var(--border-strong);
+                    color: var(--text-muted);
+
+                    &:hover {
+                        background: var(--bg-raised);
+                        color: var(--text-strong);
+                    }
+                }
+
+                &.create {
+                    background: var(--accent-gradient);
+                    color: var(--text-strong);
+
+                    &:hover {
+                        box-shadow: var(--shadow-md), var(--glow);
+                    }
+                }
+
+                &.destructive {
+                    background: linear-gradient(135deg, #e5534b 0%, #c03a33 100%);
+                    color: var(--text-strong);
+
+                    &:hover {
+                        box-shadow: var(--shadow-md), 0 0 22px rgba(229, 83, 75, 0.4);
+                    }
+                }
+            }
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .model-container,
+    .model-container .modelBody {
+        animation: none;
+    }
+}
+
+@media (max-width: 520px) {
+    .model-container .modelBody {
+        .input {
+            flex-direction: column;
+            align-items: stretch;
+
+            .input-box {
+                flex-direction: column;
+            }
+
+            select {
+                flex: 1;
+            }
+        }
+
+        p {
+            white-space: normal;
+        }
+    }
+}

@@ -1,0 +1,39 @@
+services:
+  collab:
+    build:
+      context: ./server
+    image: codein-collab:latest
+    restart: unless-stopped
+    ports:
+      - "${COLLAB_PORT:-1234}:1234"
+    environment:
+      # Browsers do not apply CORS to WebSockets, so this allowlist is the only
+      # thing stopping another site from opening sockets through a visitor's
+      # browser. Must match the origin the frontend is actually served from.
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8080}
+      MAX_ROOMS: ${MAX_ROOMS:-200}
+      MAX_CONNS_PER_ROOM: ${MAX_CONNS_PER_ROOM:-12}
+    # Rooms are held in process memory. Two replicas means two people opening
+    # the same link can land on different processes and see empty, independent
+    # documents, with no error anywhere.
+    deploy:
+      replicas: 1
+
+  web:
+    build:
+      context: .
+      args:
+        # These are baked into the bundle at build time. The WS URL is resolved
+        # by the browser, not by Docker, so it must be a host-reachable address
+        # — `ws://collab:1234` would only work from inside the network.
+        REACT_APP_COLLAB_WS_URL: ${REACT_APP_COLLAB_WS_URL:-ws://localhost:1234}
+        REACT_APP_COLLAB_ENABLED: ${REACT_APP_COLLAB_ENABLED:-true}
+        REACT_APP_JUDGE0_URL: ${REACT_APP_JUDGE0_URL:-https://ce.judge0.com}
+        REACT_APP_JUDGE0_HOST: ${REACT_APP_JUDGE0_HOST:-}
+        REACT_APP_JUDGE0_KEY: ${REACT_APP_JUDGE0_KEY:-}
+    image: codein-web:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - collab

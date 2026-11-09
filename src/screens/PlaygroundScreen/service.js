@@ -1,159 +1,134 @@
-// const languageCodeMap = {
-//     cpp: 54,         // C++ (GCC 9.2)
-//     python: 92,      // Python 3.8
-//     javascript: 93,  // Node.js
-//     java: 91         // Java OpenJDK 13
-// };
+import { judge0IdFor } from '../../config/languages';
 
-// async function getSubmission(token, callback = () => {}){
-//     const url = `https://ce.judge0.com/submissions/${token}?base64_encoded=true`;
-//     const options = {
-//         method : 'GET',
-//         headers: { "Content-Type": "application/json" },
-//     };
-//     try {
-//         const response = await fetch (url , options);
-//         const result = await response.json();
-//         return result;
-//     }catch(error){
-//         // console.log({err});
-//         callback({apiStatus : 'error' , message : JSON.stringify(error)});
-//     }
-// }
+// The public ce.judge0.com endpoint is heavily rate limited. Point these at a
+// RapidAPI or self-hosted instance via .env to get reliable execution.
+const BASE_URL = process.env.REACT_APP_JUDGE0_URL || 'https://ce.judge0.com';
+const API_HOST = process.env.REACT_APP_JUDGE0_HOST;
+const API_KEY = process.env.REACT_APP_JUDGE0_KEY;
 
-// export async function makeSubmission(code ,input, language,  callback = () => {}) {
-//     const url = "https://ce.judge0.com/submissions/?base64_encoded=true"
+const POLL_INTERVAL_MS = 250;
+const MAX_ATTEMPTS = 40; // 40 x 250ms = 10 seconds
 
-//     const language_id = languageCodeMap[language];
+const authHeaders = () => (
+    API_KEY ? { 'X-RapidAPI-Key': API_KEY, 'X-RapidAPI-Host': API_HOST } : {}
+);
 
-//       if (!language_id) {
-//         return callback({ apiStatus: "error", message: "Invalid language selected" });
-//     }
+// btoa/atob only handle latin1, so round-trip through UTF-8 first. Without
+// this, any non-ASCII character in the source or stdin throws. Done with
+// encodeURIComponent rather than TextEncoder so there is no dependency on
+// globals that older runtimes and jsdom do not provide.
+export const encodeBase64 = (str) =>
+    btoa(
+        encodeURIComponent(str).replace(
+            /%([0-9A-F]{2})/g,
+            (_, hex) => String.fromCharCode(parseInt(hex, 16))
+        )
+    );
 
-//     const httpOptions = {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({
-//             language_id,
-//             source_code: btoa(code),
-//             stdin: btoa(input), // optional input later
-//       })
-//     }
-
-//     try{
-//         callback({apiStatus : 'loading'})
-//         const response = await fetch(url , httpOptions);
-//         const {token} = await response.json();
-
-//         let statusCode = 1;
-//         let apiSubmissionResponse;
-//         while(statusCode === 1 || statusCode === 2){
-//             try{
-//                 apiSubmissionResponse = await getSubmission(token);
-//                 statusCode = apiSubmissionResponse.status.id;
-//             }catch(error){
-//                 callback({apiStatus : error , message : JSON.stringify(error)});
-//                 return
-//             }   
-//         }
-
-//         if(apiSubmissionResponse){
-//             callback({apiStatus : 'success' , data : apiSubmissionResponse});
-//         }
-
-//         const result = await fetch(
-//             `https://ce.judge0.com/submissions/${token}?base64_encoded=true`
-//         );
-
-//         const data = await result.json();
-
-//         return data.stdout || data.stderr || data.compile_output;
-//     }
-//     catch(error){
-//         callback({
-//             apiStatus : 'error',
-//             message : JSON.stringify(error)
-//         })
-//     }
-
-// }
-
-const languageCodeMap = {
-    cpp: 54,
-    python: 71,
-    javascript: 63,
-    java: 62
+export const decodeBase64 = (value) => {
+    if (!value) return "";
+    try {
+        return decodeURIComponent(
+            atob(value)
+                .split('')
+                .map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
+                .join('')
+        );
+    } catch (e) {
+        return value;
+    }
 };
 
-function encode(str) {
-    return btoa(unescape(encodeURIComponent(str)));
-}
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-export async function makeSubmission(code, input, language, callback = () => {}) {
-    const url = "https://ce.judge0.com/submissions/?base64_encoded=true";
-
-    const language_id = languageCodeMap[language];
+/**
+ * Submits code to Judge0 and polls until it finishes.
+ *
+ * `callback` is called with { apiStatus: 'loading' | 'success' | 'error' }.
+ * On success it also receives `output` (already base64-decoded) and `status`,
+ * so callers never have to know about Judge0's encoding.
+ */
+export async function makeSubmission(code, input, language, callback = () => { }) {
+    const language_id = judge0IdFor(language);
 
     if (!language_id) {
         return callback({ apiStatus: "error", message: "Invalid language selected" });
     }
 
-    const body = {
-        language_id,
-        source_code: encode(code || ""),
-        stdin: encode(input || "")
-    };
+    if (!code?.trim()) {
+        return callback({ apiStatus: "error", message: "Nothing to run — the editor is empty." });
+    }
 
-    console.log("Submitting:", body);
     callback({ apiStatus: "loading" });
 
-    const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-    });
+    try {
+        const res = await fetch(`${BASE_URL}/submissions/?base64_encoded=true`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...authHeaders() },
+            body: JSON.stringify({
+                language_id,
+                source_code: encodeBase64(code),
+                stdin: encodeBase64(input || "")
+            })
+        });
 
-    if (!res.ok) {
-        const err = await res.json();
-        console.error("POST ERROR:", err);
-        return callback({ apiStatus: "error", message: JSON.stringify(err) });
-    }
+        if (!res.ok) {
+            const detail = res.status === 429
+                ? "Judge0 rate limit reached. Please try again in a moment."
+                : `Judge0 rejected the submission (HTTP ${res.status}).`;
+            return callback({ apiStatus: "error", message: detail });
+        }
 
-    const { token } = await res.json();
+        const { token } = await res.json();
 
-    if (!token) {
-        return callback({ apiStatus: "error", message: "No token received from Judge0" });
-    }
+        if (!token) {
+            return callback({ apiStatus: "error", message: "No token received from Judge0" });
+        }
 
-    let result;
-    let status = 1;
+        let result;
+        // 1 = In Queue, 2 = Processing. Anything else means Judge0 is done.
+        let status = 1;
 
-    let attempts = 0;
-    const maxAttempts = 40; // 40 × 250ms = 10 seconds max wait
+        for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            await sleep(POLL_INTERVAL_MS);
 
-    while ((status === 1 || status === 2) && attempts < maxAttempts) {
-        await new Promise(r => setTimeout(r, 250));
+            const poll = await fetch(
+                `${BASE_URL}/submissions/${token}?base64_encoded=true`,
+                { headers: authHeaders() }
+            );
 
-        const poll = await fetch(
-            `https://ce.judge0.com/submissions/${token}?base64_encoded=true`
-        );
+            if (!poll.ok) {
+                return callback({
+                    apiStatus: "error",
+                    message: `Could not read the result (HTTP ${poll.status}).`
+                });
+            }
 
-        result = await poll.json();
-        status = result?.status?.id;
+            result = await poll.json();
+            status = result?.status?.id;
 
-        attempts++;
-    }
+            if (status !== 1 && status !== 2) break;
+        }
 
-    if (attempts >= maxAttempts) {
-        return callback({
+        if (status === 1 || status === 2) {
+            return callback({ apiStatus: "error", message: "Execution timed out. Please try again." });
+        }
+
+        // Status 3 = Accepted. Everything else surfaces stderr / compile output.
+        const output = status === 3
+            ? decodeBase64(result.stdout)
+            : decodeBase64(result.compile_output) ||
+              decodeBase64(result.stderr) ||
+              decodeBase64(result.stdout) ||
+              result?.status?.description ||
+              "Execution failed.";
+
+        callback({ apiStatus: "success", data: result, output, status });
+        return output;
+    } catch (error) {
+        callback({
             apiStatus: "error",
-            message: "Execution timeout from Judge0"
+            message: "Could not reach the execution service. Check your connection and try again."
         });
     }
-
-    callback({ apiStatus: "success", data: result });
-
-    const decode = (v) => (v ? decodeURIComponent(escape(atob(v))) : "");
-
-    return decode(result.stdout) || decode(result.stderr) || decode(result.compile_output);
 }

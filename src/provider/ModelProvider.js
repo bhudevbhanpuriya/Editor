@@ -1,38 +1,38 @@
-import { createContext, useState } from "react";
+import { createContext, useCallback, useMemo, useState } from "react";
 
 export const ModelContext = createContext();
 
 export const ModelConstant = {
-    CREATE_PLAYGROUND : 'CREATE_PLAYGROUND',
-    CREATE_FOLDER : 'CREATE_FOLDER',
-    RENAME_FOLDER : 'RENAME_FOLDER',
-    RENAME_FILE : 'RENAME_FILE' 
+    CREATE_PLAYGROUND: 'CREATE_PLAYGROUND',
+    CREATE_FOLDER: 'CREATE_FOLDER',
+    CREATE_FILE: 'CREATE_FILE',
+    RENAME_FOLDER: 'RENAME_FOLDER',
+    RENAME_FILE: 'RENAME_FILE',
+    SHARE_SESSION: 'SHARE_SESSION'
 }
 
-export const ModelProvider = ({children}) => {
+export const ModelProvider = ({ children }) => {
+    const [modelType, setModelType] = useState(null);
+    const [modelPayload, setModelPayload] = useState(null);
 
-    const [modelType , setModelType] = useState(null);
-    const [modelPayload , setModelPayload] = useState(null);
+    // Type and payload are set together so a model can never render against
+    // the payload of the previously opened one.
+    const openModel = useCallback((type, payload = null) => {
+        setModelType(type);
+        setModelPayload(payload);
+    }, []);
 
-    const [renameTrigger , setRenameTrigger ] = useState(0);
-
-
-    const closeModel = () => {
+    const closeModel = useCallback(() => {
         setModelType(null);
         setModelPayload(null);
-    }
+    }, []);
 
-
-    const modelFeature = {
-        openModel:setModelType,
+    const modelFeature = useMemo(() => ({
+        openModel,
         closeModel,
-        activeModel:modelType,
-        modelPayload,
-        setModelPayload,
-        renameTrigger,
-        setRenameTrigger
-    }
-
+        activeModel: modelType,
+        modelPayload
+    }), [openModel, closeModel, modelType, modelPayload]);
 
     return (
         <ModelContext.Provider value={modelFeature}>

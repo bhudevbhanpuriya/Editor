@@ -4,11 +4,15 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-const observerError = (e) =>
-  e.message.includes("ResizeObserver loop completed") ? null : console.error(e);
-
-window.addEventListener("error", observerError);
-
+// Monaco resizing inside a flex layout emits a benign "ResizeObserver loop"
+// error that CRA's dev overlay turns into a full-screen error. Swallow just
+// that one and let everything else through untouched.
+window.addEventListener("error", (e) => {
+  if (e.message?.includes("ResizeObserver loop")) {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+  }
+});
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

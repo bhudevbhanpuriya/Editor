@@ -1,0 +1,20 @@
+{
+  "name": "codein-collab-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Yjs WebSocket server backing CODEIN.it collaborative sessions",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.3",
+    "yjs": "^13.6.31",
+    "y-websocket": "2.1.0",
+    "y-protocols": "^1.0.7"
+  }
+}
