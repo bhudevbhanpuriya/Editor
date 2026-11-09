@@ -8,7 +8,8 @@ export const ModelConstant = {
     CREATE_FILE: 'CREATE_FILE',
     RENAME_FOLDER: 'RENAME_FOLDER',
     RENAME_FILE: 'RENAME_FILE',
-    SHARE_SESSION: 'SHARE_SESSION'
+    SHARE_SESSION: 'SHARE_SESSION',
+    MOVE_FILE: 'MOVE_FILE'
 }
 
 export const ModelProvider = ({ children }) => {

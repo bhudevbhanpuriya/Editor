@@ -29,6 +29,10 @@ it.each(Object.entries(LANGUAGES))('%s is fully configured', (key, config) => {
     expect(config.starter.trim()).not.toBe('');
     // Every starter should print something, so a new file runs as-is.
     expect(config.starter).toMatch(/Hello World!/);
+    // Badge shown on file cards and in the file tree.
+    expect(config.short.length).toBeGreaterThan(0);
+    expect(config.short.length).toBeLessThanOrEqual(3);
+    expect(config.color).toMatch(/^#[0-9a-f]{6}$/i);
 });
 
 it('maps each language to a distinct Judge0 id', () => {

@@ -14,8 +14,10 @@ export const CreateFileModel = () => {
             return;
         }
 
-        createNewFile(fileName, language, modelPayload?.folderId);
+        const fileId = createNewFile(fileName, language, modelPayload?.folderId);
         closeModel();
+        // Lets the playground's file tree open the new file immediately.
+        modelPayload?.onCreated?.(fileId, modelPayload.folderId);
     }
 
     return (

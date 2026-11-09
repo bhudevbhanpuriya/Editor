@@ -5,6 +5,8 @@
  * renamed — `cpp`, `java`, `javascript` and `python` predate this file.
  *
  *   label    - shown in the dropdowns
+ *   short    - 1-3 character badge text shown on file cards and in the tree
+ *   color    - badge colour; chosen to stay readable on the dark surfaces
  *   judge0Id - execution id, see https://ce.judge0.com/languages
  *   monaco   - Monaco's language id, for syntax highlighting
  *   extension- used when exporting the file
@@ -13,6 +15,8 @@
 export const LANGUAGES = {
     c: {
         label: 'C',
+        short: 'C',
+        color: '#8fa6c8',
         judge0Id: 50,
         monaco: 'c',
         extension: 'c',
@@ -27,6 +31,8 @@ int main(void) {
 
     cpp: {
         label: 'C++',
+        short: 'C++',
+        color: '#f06292',
         judge0Id: 54,
         monaco: 'cpp',
         extension: 'cpp',
@@ -42,6 +48,8 @@ int main() {
 
     csharp: {
         label: 'C#',
+        short: 'C#',
+        color: '#6fcf5f',
         judge0Id: 51,
         monaco: 'csharp',
         extension: 'cs',
@@ -57,6 +65,8 @@ class Program {
 
     go: {
         label: 'Go',
+        short: 'Go',
+        color: '#29beb0',
         judge0Id: 60,
         monaco: 'go',
         extension: 'go',
@@ -72,6 +82,8 @@ func main() {
 
     java: {
         label: 'Java',
+        short: 'Jv',
+        color: '#f0a04b',
         judge0Id: 62,
         monaco: 'java',
         extension: 'java',
@@ -85,6 +97,8 @@ func main() {
 
     javascript: {
         label: 'JavaScript',
+        short: 'JS',
+        color: '#f1e05a',
         judge0Id: 63,
         monaco: 'javascript',
         extension: 'js',
@@ -93,6 +107,8 @@ func main() {
 
     kotlin: {
         label: 'Kotlin',
+        short: 'Kt',
+        color: '#a97bff',
         judge0Id: 78,
         monaco: 'kotlin',
         extension: 'kt',
@@ -104,6 +120,8 @@ func main() {
 
     lua: {
         label: 'Lua',
+        short: 'Lua',
+        color: '#6c8cff',
         judge0Id: 64,
         monaco: 'lua',
         extension: 'lua',
@@ -112,6 +130,8 @@ func main() {
 
     php: {
         label: 'PHP',
+        short: 'PHP',
+        color: '#9a9fe6',
         judge0Id: 68,
         monaco: 'php',
         extension: 'php',
@@ -123,6 +143,8 @@ echo "Hello World!\\n";
 
     python: {
         label: 'Python',
+        short: 'Py',
+        color: '#5aa5e6',
         judge0Id: 71,
         monaco: 'python',
         extension: 'py',
@@ -131,6 +153,8 @@ echo "Hello World!\\n";
 
     ruby: {
         label: 'Ruby',
+        short: 'Rb',
+        color: '#ef5b5b',
         judge0Id: 72,
         monaco: 'ruby',
         extension: 'rb',
@@ -139,6 +163,8 @@ echo "Hello World!\\n";
 
     rust: {
         label: 'Rust',
+        short: 'Rs',
+        color: '#dea584',
         judge0Id: 73,
         monaco: 'rust',
         extension: 'rs',
@@ -150,6 +176,8 @@ echo "Hello World!\\n";
 
     scala: {
         label: 'Scala',
+        short: 'Sc',
+        color: '#ff7a6b',
         judge0Id: 81,
         monaco: 'scala',
         extension: 'scala',
@@ -161,6 +189,8 @@ echo "Hello World!\\n";
 
     shell: {
         label: 'Bash',
+        short: 'Sh',
+        color: '#89e051',
         judge0Id: 46,
         monaco: 'shell',
         extension: 'sh',
@@ -169,6 +199,8 @@ echo "Hello World!\\n";
 
     swift: {
         label: 'Swift',
+        short: 'Sw',
+        color: '#f7894a',
         judge0Id: 83,
         monaco: 'swift',
         extension: 'swift',
@@ -177,6 +209,8 @@ echo "Hello World!\\n";
 
     typescript: {
         label: 'TypeScript',
+        short: 'TS',
+        color: '#3f8ff0',
         judge0Id: 74,
         monaco: 'typescript',
         extension: 'ts',
@@ -204,3 +238,12 @@ export const judge0IdFor = (language) => LANGUAGES[language]?.judge0Id;
 // Falls back to plaintext so an unknown language still opens in the editor
 // instead of leaving Monaco in an undefined state.
 export const monacoIdFor = (language) => LANGUAGES[language]?.monaco ?? 'plaintext';
+
+export const languageMeta = (language) => {
+    const config = LANGUAGES[language];
+    return {
+        label: config?.label ?? language ?? 'Unknown',
+        short: config?.short ?? '?',
+        color: config?.color ?? '#9b9ba6'
+    };
+};

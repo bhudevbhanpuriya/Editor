@@ -10,6 +10,6 @@ beforeEach(() => localStorage.clear());
 
 it('boots the home screen without crashing', () => {
     render(<App />);
-    expect(screen.getByText('My PlayGround')).toBeInTheDocument();
-    expect(screen.getByText('DSA')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('All files');
+    expect(screen.getByRole('region', { name: 'DSA' })).toBeInTheDocument();
 });

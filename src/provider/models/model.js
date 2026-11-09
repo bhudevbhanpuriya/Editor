@@ -6,6 +6,7 @@ import {UpdateFolderTitleModel} from "./RenameFolderTitle/UpdateFolderTitleModel
 import { RenameFileNameModel } from "./RenameFileName/RenameFileNameModel";
 import { CreateFileModel } from "./CreatFile/CreateFileModel";
 import { ShareSessionModel } from "./Share/ShareSessionModel";
+import { MoveFileModel } from "./MoveFile/MoveFileModel";
 
 
 
@@ -19,5 +20,6 @@ export const Model = () => {
         {modelFeature.activeModel === ModelConstant.RENAME_FILE && <RenameFileNameModel/>}
         {modelFeature.activeModel === ModelConstant.CREATE_FILE && <CreateFileModel/>}
         {modelFeature.activeModel === ModelConstant.SHARE_SESSION && <ShareSessionModel/>}
+        {modelFeature.activeModel === ModelConstant.MOVE_FILE && <MoveFileModel/>}
     </>
 }

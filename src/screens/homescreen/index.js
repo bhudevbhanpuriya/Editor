@@ -1,37 +1,35 @@
 import "./index.scss"
+import { useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { RightComponent } from "./right-component";
+import { HomeSidebar } from "./HomeSidebar";
 import { Model } from "../../provider/models/model";
-import { useContext } from "react";
-import { ModelConstant, ModelContext } from "../../provider/ModelProvider";
+
+// The view lives in the URL (?view=recent, ?folder=<id>) so a refresh or the
+// Back button returns to the same place.
+const parseView = (params) => {
+    const folderId = params.get('folder');
+    if (folderId) return { type: 'folder', folderId };
+    const view = params.get('view');
+    return { type: view === 'recent' || view === 'starred' ? view : 'all' };
+};
+
+const viewToParams = (view) => {
+    if (view.type === 'folder') return { folder: view.folderId };
+    if (view.type === 'recent' || view.type === 'starred') return { view: view.type };
+    return {};
+};
 
 export const HomeScreen = () => {
-    const { openModel } = useContext(ModelContext);
-
-    const openCreatePlaygroundModel = () => {
-        openModel(ModelConstant.CREATE_PLAYGROUND);
-    }
+    const [params, setParams] = useSearchParams();
+    const view = parseView(params);
+    const setView = useCallback((next) => setParams(viewToParams(next)), [setParams]);
 
     return (
         <div className="home-container">
-
-            <div className="left-container">
-                <div className="item-container">
-                    <img src='logo.png' alt='CODEIN.it logo' />
-                    <h2 className="bitcount">CODEIN.it</h2>
-                    <h3>Code | Debug | Run </h3>
-
-                    <button onClick={openCreatePlaygroundModel}>
-                        <span className="material-icons">add</span>
-                        <span> Create Playground</span>
-                    </button>
-                </div>
-            </div>
-
-            {/* RightComponent renders its own .right-container; wrapping it in a
-                second one nested two full-height scroll areas. */}
-            <RightComponent />
+            <HomeSidebar view={view} setView={setView} />
+            <RightComponent view={view} setView={setView} />
             <Model />
-
         </div>
     );
 }

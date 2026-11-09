@@ -1,5 +1,6 @@
 .right-container {
-  height: 100vh;
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -33,27 +34,98 @@
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    padding: 24px 32px;
+    padding: 22px 32px;
     background: var(--surface-gradient);
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
 
-    h1 {
-      font-size: 1.6rem;
-      font-weight: 500;
-      color: var(--text-strong);
-      letter-spacing: -0.01em;
+    .heading {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+
+      h1 {
+        font-size: 1.55rem;
+        font-weight: 500;
+        color: var(--text-strong);
+        letter-spacing: -0.01em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        color: var(--text-faint);
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 300px;
+      height: 40px;
+      padding: 0 12px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      transition: border-color var(--transition), box-shadow var(--transition);
+
+      .material-icons {
+        font-size: 19px;
+        color: var(--text-faint);
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--text-strong);
+        background: transparent;
+        border: none;
+
+        &::placeholder {
+          color: var(--text-faint);
+        }
+
+        // The ring is drawn on the whole field instead.
+        &:focus,
+        &:focus-visible {
+          outline: none;
+        }
+      }
+
+      &:focus-within {
+        border-color: var(--accent-line);
+        box-shadow: var(--glow-focus);
+
+        .material-icons {
+          color: var(--accent-bright);
+        }
+      }
     }
 
     .add-folder-container {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 18px;
+      height: 40px;
+      padding: 0 16px;
 
       font-family: var(--font-mono);
       font-size: 13px;
       font-weight: 600;
+      white-space: nowrap;
 
       background: var(--accent-gradient);
       color: var(--text-strong);
@@ -68,10 +140,6 @@
         transform: translateY(-1px);
       }
 
-      &:active {
-        transform: translateY(0);
-      }
-
       span.material-icons {
         color: inherit;
         font-size: 18px;
@@ -79,222 +147,292 @@
     }
   }
 
+  // Rename / delete / New File for a folder; used in a folder section header
+  // and in the main header when a single folder is open.
+  .folder-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+
+    >button:not(.button) {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+
+      background: transparent;
+      color: var(--text-faint);
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color var(--transition), color var(--transition), border-color var(--transition);
+
+      span.material-icons {
+        font-size: 18px;
+        color: inherit;
+      }
+
+      &:hover {
+        background: var(--accent-soft);
+        border-color: var(--accent-line);
+        color: var(--text-strong);
+      }
+    }
+
+    .button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 7px;
+      margin-left: 6px;
+      height: 36px;
+      padding: 0 14px;
+
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 600;
+      white-space: nowrap;
+
+      background: var(--bg-raised);
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color var(--transition), border-color var(--transition), box-shadow var(--transition);
+
+      span.material-icons {
+        color: inherit;
+        font-size: 17px;
+      }
+
+      &:hover {
+        background: var(--accent-soft);
+        border-color: var(--accent-line);
+        box-shadow: var(--glow-focus);
+      }
+    }
+  }
+
   .folder-container {
+    margin: 8px 16px 0;
+    border: 1px dashed transparent;
+    border-radius: var(--radius-lg);
+    transition: background-color var(--transition), border-color var(--transition);
+
     >.header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
-      padding: 26px 32px 16px;
+      padding: 18px 16px 12px;
 
       .folder {
         display: flex;
         align-items: center;
         gap: 11px;
         min-width: 0;
+        padding: 4px 8px 4px 4px;
+
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
 
         span.material-icons {
           font-size: 21px;
           color: var(--accent-bright);
         }
 
-        >span:not(.material-icons) {
+        h2 {
           font-size: 1.15rem;
           font-weight: 500;
           color: var(--text-strong);
           letter-spacing: -0.01em;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          transition: color var(--transition);
         }
-      }
 
-      .icons {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-
-        >button:not(.button) {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: 34px;
-          height: 34px;
-          padding: 0;
-
-          background: transparent;
+        .folder-count {
+          padding: 1px 8px;
+          font-size: 11px;
           color: var(--text-faint);
-          border: 1px solid transparent;
-          border-radius: var(--radius-sm);
-          cursor: pointer;
-          transition: background-color var(--transition), color var(--transition), border-color var(--transition);
-
-          span.material-icons {
-            font-size: 18px;
-            color: inherit;
-          }
-
-          &:hover {
-            background: var(--accent-soft);
-            border-color: var(--accent-line);
-            color: var(--text-strong);
-          }
+          background: var(--bg-raised);
+          border-radius: 999px;
         }
 
-        .button {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 7px;
-          margin-left: 6px;
-          padding: 9px 15px;
-
-          font-family: var(--font-mono);
-          font-size: 12.5px;
-          font-weight: 600;
-
-          background: var(--bg-raised);
-          color: var(--text);
-          border: 1px solid var(--border-strong);
-          border-radius: var(--radius-sm);
-          cursor: pointer;
-          transition: background-color var(--transition), border-color var(--transition), box-shadow var(--transition);
-
-          span.material-icons {
-            color: inherit;
-            font-size: 17px;
-          }
-
-          &:hover {
-            background: var(--accent-soft);
-            border-color: var(--accent-line);
-            box-shadow: var(--glow-focus);
-          }
+        &:hover h2 {
+          color: var(--accent-bright);
         }
       }
     }
 
     .cards-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-      gap: 16px;
-      padding: 8px 32px 34px;
+      padding: 4px 16px 22px;
+    }
+  }
 
-      .empty-state {
-        grid-column: 1 / -1;
-        padding: 22px;
-        color: var(--text-faint);
-        font-size: 13px;
-        text-align: center;
-        border: 1px dashed var(--border-strong);
-        border-radius: var(--radius);
+  // A file is being held over this folder (or the open folder's page).
+  .folder-container.is-drop-target,
+  .folder-page.is-drop-target {
+    background: var(--accent-soft);
+    border-color: var(--accent-bright);
+  }
+
+  .folder-page {
+    flex: 1;
+    margin: 8px 16px 16px;
+    border: 1px dashed transparent;
+    border-radius: var(--radius-lg);
+    transition: background-color var(--transition), border-color var(--transition);
+
+    .cards-container {
+      padding: 16px;
+    }
+  }
+
+  .cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 14px;
+    padding: 24px 32px 34px;
+
+    .empty-state {
+      grid-column: 1 / -1;
+      padding: 22px;
+      color: var(--text-faint);
+      font-size: 13px;
+      text-align: center;
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius);
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      overflow: hidden;
+
+      background: var(--surface-gradient);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition), opacity var(--transition);
+
+      // Accent edge that lights up on hover.
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--accent-gradient);
+        opacity: 0;
+        transition: opacity var(--transition);
       }
 
-      .card {
-        position: relative;
+      .title-language {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        padding: 18px;
-        overflow: hidden;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+        min-width: 0;
+        gap: 5px;
 
-        background: var(--surface-gradient);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        cursor: pointer;
-        transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
-
-        // Accent edge that lights up on hover.
-        &::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 2px;
-          background: var(--accent-gradient);
-          opacity: 0;
-          transition: opacity var(--transition);
+        .file-title {
+          font-size: 14.5px;
+          font-weight: 600;
+          color: var(--text-strong);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
-        img {
-          width: 46px;
-          height: 46px;
-          padding: 8px;
-          object-fit: contain;
-          flex-shrink: 0;
-          background: var(--bg-base);
-          border: 1px solid var(--border-strong);
-          border-radius: var(--radius-sm);
-        }
-
-        .title-language {
+        .file-meta {
           display: flex;
-          flex-direction: column;
-          justify-content: center;
-          flex: 1;
+          align-items: center;
+          gap: 8px;
           min-width: 0;
-          gap: 5px;
-
-          >span:first-child {
-            font-size: 14.5px;
-            font-weight: 600;
-            color: var(--text-strong);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-
-          >span:last-child {
-            font-size: 11.5px;
-            color: var(--text-faint);
-            letter-spacing: 0.03em;
-          }
+          font-size: 11.5px;
+          color: var(--text-faint);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
-        .icons {
-          display: flex;
-          gap: 3px;
+        .match-tag {
           flex-shrink: 0;
-          opacity: 0;
-          transition: opacity var(--transition);
+          padding: 1px 6px;
+          font-size: 10px;
+          color: var(--accent-bright);
+          background: var(--accent-soft);
+          border-radius: 999px;
+        }
+      }
 
-          button {
-            display: flex;
-            align-items: center;
-            padding: 7px;
+      // Just the star and the ⋯ menu, always visible: hiding them with
+      // opacity would still reserve their space, and touch screens have no
+      // hover to reveal them anyway.
+      .icons {
+        display: flex;
+        gap: 2px;
+        flex-shrink: 0;
 
-            background: transparent;
-            color: var(--text-faint);
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: background-color var(--transition), color var(--transition);
+        button {
+          display: flex;
+          align-items: center;
+          padding: 6px;
 
-            span.material-icons {
-              font-size: 18px;
-              color: inherit;
-            }
+          background: transparent;
+          color: var(--border-strong);
+          border: none;
+          border-radius: var(--radius-sm);
+          cursor: pointer;
+          transition: background-color var(--transition), color var(--transition);
 
-            &:hover {
-              background: var(--accent-soft);
-              color: var(--text-strong);
-            }
+          span.material-icons {
+            font-size: 19px;
+            color: inherit;
+          }
+
+          &:hover,
+          &.is-open {
+            background: var(--accent-soft);
+            color: var(--text-strong);
+          }
+
+          &.is-starred {
+            color: var(--warning);
           }
         }
+      }
 
-        &:hover,
-        &:focus-within {
-          border-color: var(--accent-line);
-          box-shadow: var(--shadow-md);
-          transform: translateY(-2px);
+      &:hover,
+      &:focus-within {
+        border-color: var(--accent-line);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
 
-          &::before {
-            opacity: 1;
-          }
-
-          .icons {
-            opacity: 1;
-          }
+        &::before {
+          opacity: 1;
         }
+
+        .icons button:not(.is-starred) {
+          color: var(--text-faint);
+        }
+      }
+
+      &.is-dragging {
+        opacity: 0.45;
+        transform: none;
       }
     }
   }
@@ -308,37 +446,73 @@
   }
 }
 
-// Touch devices have no hover, so the card actions must always be visible.
+// Touch devices have no hover, so give the card actions full contrast.
 @media (hover: none) {
-  .right-container .cards-container .card .icons {
-    opacity: 1;
+  .right-container .cards-container .card .icons button:not(.is-starred) {
+    color: var(--text-faint);
+  }
+}
+
+@media (max-width: 860px) {
+  .right-container>.header {
+    flex-wrap: wrap;
+
+    .header-actions {
+      width: 100%;
+    }
+
+    .search {
+      flex: 1;
+      width: auto;
+    }
   }
 }
 
 @media (max-width: 600px) {
   .right-container {
     >.header {
-      padding: 20px 16px;
-      flex-wrap: wrap;
+      padding: 16px;
       gap: 12px;
 
       h1 {
-        font-size: 1.35rem;
+        font-size: 1.3rem;
+      }
+
+      .header-actions {
+        flex-wrap: wrap;
+      }
+
+      .search {
+        flex-basis: 100%;
       }
     }
 
     .folder-container {
+      margin: 8px 8px 0;
+
       >.header {
-        padding: 20px 16px 12px;
+        padding: 14px 8px 10px;
         flex-wrap: wrap;
-        gap: 12px;
+        gap: 10px;
       }
 
       .cards-container {
-        padding: 8px 16px 24px;
-        // 290px overflows a 320px viewport once padding is applied.
-        grid-template-columns: 1fr;
+        padding: 4px 8px 18px;
       }
+    }
+
+    .folder-page {
+      margin: 8px;
+
+      .cards-container {
+        padding: 8px;
+      }
+    }
+
+    .cards-container {
+      padding: 16px;
+      // 290px overflows a 320px viewport once padding is applied.
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 }

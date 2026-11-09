@@ -8,6 +8,7 @@ import { ConfirmProvider } from "./provider/ConfirmProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { CollabProvider } from "./collab/CollabProvider";
 import { SessionScreen } from "./screens/SessionScreen";
+import { QuickOpenProvider } from "./components/QuickOpen";
 
 function App() {
   return (
@@ -19,18 +20,22 @@ function App() {
           <ModelProvider>
             <ConfirmProvider>
               <BrowserRouter>
-                <Routes>
-                  <Route path='/' element={<HomeScreen />} />
-                  {/* CollabProvider sits here, not in the stack above: as a
-                      route element it is inside BrowserRouter (so it can read
-                      ?room=) while still being inside every app provider. */}
-                  <Route
-                    path='/playground/:fileId/:folderId'
-                    element={<CollabProvider><PlayGroundScreen /></CollabProvider>}
-                  />
-                  <Route path='/session/:roomId' element={<SessionScreen />} />
-                  <Route path='*' element={<Navigate to='/' replace />} />
-                </Routes>
+                {/* Inside the router (it navigates) and the playground
+                    provider (it lists files); Ctrl+K works on every route. */}
+                <QuickOpenProvider>
+                  <Routes>
+                    <Route path='/' element={<HomeScreen />} />
+                    {/* CollabProvider sits here, not in the stack above: as a
+                        route element it is inside BrowserRouter (so it can read
+                        ?room=) while still being inside every app provider. */}
+                    <Route
+                      path='/playground/:fileId/:folderId'
+                      element={<CollabProvider><PlayGroundScreen /></CollabProvider>}
+                    />
+                    <Route path='/session/:roomId' element={<SessionScreen />} />
+                    <Route path='*' element={<Navigate to='/' replace />} />
+                  </Routes>
+                </QuickOpenProvider>
               </BrowserRouter>
             </ConfirmProvider>
           </ModelProvider>

@@ -260,3 +260,119 @@ describe('migration from the pre-fix app', () => {
         expect(api.folders[0].files[0].language).toBe('python');
     });
 });
+
+describe('organisation fields', () => {
+    const at = (time) => jest.spyOn(Date, 'now').mockReturnValue(time);
+    afterEach(() => Date.now.mockRestore?.());
+
+    it('stamps new files with created/updated times and no star', () => {
+        setup();
+        at(1000);
+        let id;
+        act(() => { id = api.createNewFile('Main', 'java', api.folders[0].id); });
+
+        const file = api.folders[0].files.find(f => f.id === id);
+        expect(file).toMatchObject({ starred: false, createdAt: 1000, updatedAt: 1000, openedAt: null });
+    });
+
+    it('fills defaults for files saved before these fields existed', () => {
+        localStorage.setItem('data', JSON.stringify({
+            version: 2,
+            folders: [{ id: 'f1', title: 'Old', files: [{ id: 'a', title: 'x', code: '', language: 'cpp' }] }]
+        }));
+        setup();
+
+        // Null, not "now": an old file must not look freshly edited.
+        expect(api.folders[0].files[0]).toMatchObject({
+            starred: false, createdAt: null, updatedAt: null, openedAt: null
+        });
+    });
+
+    it('bumps updatedAt on a real change only', () => {
+        setup();
+        const folder = api.folders[0];
+        const file = folder.files[0];
+
+        at(5000);
+        act(() => api.updateFile(folder.id, file.id, { code: file.code }));
+        expect(api.folders[0].files[0].updatedAt).toBe(file.updatedAt);
+
+        act(() => api.updateFile(folder.id, file.id, { code: 'changed' }));
+        expect(api.folders[0].files[0].updatedAt).toBe(5000);
+
+        at(6000);
+        act(() => api.renameFile('renamed', folder.id, file.id));
+        expect(api.folders[0].files[0].updatedAt).toBe(6000);
+    });
+
+    it('toggleStar flips the star and persists it', () => {
+        setup();
+        const folder = api.folders[0];
+        const fileId = folder.files[0].id;
+
+        act(() => api.toggleStar(folder.id, fileId));
+        expect(stored()[0].files[0].starred).toBe(true);
+
+        act(() => api.toggleStar(folder.id, fileId));
+        expect(stored()[0].files[0].starred).toBe(false);
+    });
+
+    it('markOpened records when a file was opened, and ignores unknown files', () => {
+        setup();
+        const folder = api.folders[0];
+        at(7000);
+        act(() => api.markOpened(folder.id, folder.files[0].id));
+        expect(api.folders[0].files[0].openedAt).toBe(7000);
+
+        const before = api.folders;
+        act(() => api.markOpened('nope', 'nope'));
+        expect(api.folders).toBe(before);
+    });
+});
+
+describe('moveFile', () => {
+    it('moves a file to the end of another folder, keeping its contents', () => {
+        setup();
+        const [dsa, web] = api.folders;
+        const file = dsa.files[0];
+
+        act(() => api.moveFile(file.id, web.id));
+
+        expect(api.folders[0].files).toHaveLength(0);
+        expect(api.folders[1].files.map(f => f.id)).toEqual([web.files[0].id, file.id]);
+        expect(api.folders[1].files[1]).toEqual(file);
+        expect(stored()[1].files).toHaveLength(2);
+    });
+
+    it('is a no-op for the same folder or unknown ids', () => {
+        setup();
+        const [dsa] = api.folders;
+        const before = api.folders;
+
+        act(() => api.moveFile(dsa.files[0].id, dsa.id));
+        act(() => api.moveFile('nope', dsa.id));
+        act(() => api.moveFile(dsa.files[0].id, 'nope'));
+
+        expect(api.folders).toBe(before);
+    });
+
+    // URLs and saved collab sessions carry the folder id at the time they were
+    // made; after a move that id is stale but must keep working.
+    it('keeps a stale folder id working for lookups and edits', () => {
+        setup();
+        const [dsa, web] = api.folders;
+        const fileId = dsa.files[0].id;
+        act(() => api.moveFile(fileId, web.id));
+
+        const found = findFile(api.folders, dsa.id, fileId);
+        expect(found.folder.id).toBe(web.id);
+        expect(found.file.id).toBe(fileId);
+
+        act(() => api.updateFile(dsa.id, fileId, { code: 'after move' }));
+        act(() => api.renameFile('moved', dsa.id, fileId));
+        expect(api.folders[1].files[1]).toMatchObject({ code: 'after move', title: 'moved' });
+
+        act(() => api.deleteFile(dsa.id, fileId));
+        expect(api.folders[1].files).toHaveLength(1);
+    });
+});

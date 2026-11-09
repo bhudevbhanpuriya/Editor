@@ -15,30 +15,38 @@ const STORAGE_VERSION = 2;
 
 // Language metadata lives in src/config/languages.js.
 
-const initialData = [
+/**
+ * Builds a new file record. Every file carries these fields; `sanitize` fills
+ * them in for files saved before they existed.
+ *   starred   - pinned to the Starred view
+ *   createdAt - ms timestamp
+ *   updatedAt - last change to title, code or language
+ *   openedAt  - last time it was opened in the playground (drives Recent)
+ */
+const makeFile = ({ id = createId(), title, language, code = starterCode(language) }) => {
+    const now = Date.now();
+    return {
+        id,
+        title,
+        code,
+        language,
+        starred: false,
+        createdAt: now,
+        updatedAt: now,
+        openedAt: null
+    };
+};
+
+const seedData = () => [
     {
         id: createId(),
         title: 'DSA',
-        files: [
-            {
-                id: createId(),
-                title: 'index',
-                code: starterCode('cpp'),
-                language: 'cpp'
-            }
-        ]
+        files: [makeFile({ title: 'index', language: 'cpp' })]
     },
     {
         id: createId(),
         title: 'Web-dev',
-        files: [
-            {
-                id: createId(),
-                title: 'homepage',
-                code: starterCode('javascript'),
-                language: 'javascript'
-            }
-        ]
+        files: [makeFile({ title: 'homepage', language: 'javascript' })]
     }
 ];
 
@@ -70,6 +78,20 @@ const migrate = (folders) => folders.map(folder => ({
         }))
 }));
 
+const timestampOrNull = (value) =>
+    (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null);
+
+// Additive fields, so no storage version bump: files saved before they existed
+// simply get defaults. Missing timestamps stay null rather than "now", which
+// would make every old file look freshly edited.
+const normalizeFile = (file) => ({
+    ...file,
+    starred: file.starred === true,
+    createdAt: timestampOrNull(file.createdAt),
+    updatedAt: timestampOrNull(file.updatedAt),
+    openedAt: timestampOrNull(file.openedAt)
+});
+
 // Drops anything that does not look like a folder/file, so a corrupted or
 // half-written localStorage entry can never crash a render.
 const sanitize = (parsed) => {
@@ -80,7 +102,7 @@ const sanitize = (parsed) => {
             ...folder,
             title: folder.title ?? 'Untitled folder',
             files: Array.isArray(folder.files)
-                ? folder.files.filter(file => file && file.id)
+                ? folder.files.filter(file => file && file.id).map(normalizeFile)
                 : []
         }));
 };
@@ -91,9 +113,9 @@ const readStoredFolders = () => {
         raw = localStorage.getItem(STORAGE_KEY);
     } catch (e) {
         // Private mode / storage disabled: fall back to in-memory data.
-        return initialData;
+        return seedData();
     }
-    if (!raw) return initialData;
+    if (!raw) return seedData();
 
     try {
         const parsed = JSON.parse(raw);
@@ -102,13 +124,13 @@ const readStoredFolders = () => {
         const version = isLegacy ? 1 : (parsed?.version ?? 1);
 
         const folders = sanitize(isLegacy ? parsed : parsed?.folders);
-        if (!folders) return initialData;
+        if (!folders) return seedData();
 
         return version < STORAGE_VERSION ? migrate(folders) : folders;
     } catch (e) {
         console.warn('Invalid localStorage data → resetting');
     }
-    return initialData;
+    return seedData();
 };
 
 // Returns false when the write failed, so callers can tell the user rather
@@ -126,10 +148,37 @@ const writeStoredFolders = (folders) => {
     }
 };
 
+/**
+ * Where a file actually lives.
+ *
+ * The folder id usually comes from a URL (or a saved collab session), which
+ * goes stale as soon as the file is moved to another folder. File ids are
+ * UUIDs, so falling back to a search by file id alone is unambiguous — and it
+ * keeps old links, open tabs and session rejoins working after a move.
+ */
+const resolveFolderId = (folders, folderId, fileId) => {
+    if (!Array.isArray(folders)) return null;
+    const direct = folders.find(folder => folder.id === folderId);
+    if (direct?.files?.some(file => file.id === fileId)) return folderId;
+    return folders.find(folder => folder.files?.some(file => file.id === fileId))?.id ?? null;
+};
+
 export const findFile = (folders, folderId, fileId) => {
-    const folder = folders?.find(item => item.id === folderId);
+    const actualId = resolveFolderId(folders, folderId, fileId);
+    const folder = actualId ? folders.find(item => item.id === actualId) : null;
     if (!folder) return { folder: null, file: null };
-    return { folder, file: folder.files?.find(item => item.id === fileId) ?? null };
+    return { folder, file: folder.files.find(item => item.id === fileId) ?? null };
+};
+
+// Applies `fn` to one file, tolerating a stale folder id (see resolveFolderId).
+const mapFile = (folders, folderId, fileId, fn) => {
+    const actualId = resolveFolderId(folders, folderId, fileId);
+    if (!actualId) return folders;
+    return folders.map(folder =>
+        folder.id === actualId
+            ? { ...folder, files: folder.files.map(file => (file.id === fileId ? fn(file) : file)) }
+            : folder
+    );
 };
 
 export const PlayGroundProvider = ({ children }) => {
@@ -161,30 +210,22 @@ export const PlayGroundProvider = ({ children }) => {
         commit(prev => [...prev, { id: createId(), title: folderName, files: [] }]);
     }, [commit]);
 
+    // Returns the new file's id so callers can open it straight away.
     const createNewFile = useCallback((newFileName, language, folderId) => {
-        const newFile = {
-            id: createId(),
-            title: newFileName,
-            code: starterCode(language),
-            language
-        };
+        const newFile = makeFile({ title: newFileName, language });
         commit(prev => prev.map(folder =>
             folder.id === folderId
                 ? { ...folder, files: [...folder.files, newFile] }
                 : folder
         ));
+        return newFile.id;
     }, [commit]);
 
     const createNewPlayground = useCallback(({ folderName, fileName, language }) => {
         commit(prev => [...prev, {
             id: createId(),
             title: folderName,
-            files: [{
-                id: createId(),
-                title: fileName,
-                code: starterCode(language),
-                language
-            }]
+            files: [makeFile({ title: fileName, language })]
         }]);
     }, [commit]);
 
@@ -215,7 +256,7 @@ export const PlayGroundProvider = ({ children }) => {
                 if (folder.files.some(file => file.id === fileId)) return folder;
                 return {
                     ...folder,
-                    files: [...folder.files, { id: fileId, title: fileTitle, code, language }]
+                    files: [...folder.files, makeFile({ id: fileId, title: fileTitle, code, language })]
                 };
             });
         });
@@ -226,11 +267,14 @@ export const PlayGroundProvider = ({ children }) => {
     }, [commit]);
 
     const deleteFile = useCallback((folderId, fileId) => {
-        commit(prev => prev.map(folder =>
-            folder.id === folderId
-                ? { ...folder, files: folder.files.filter(file => file.id !== fileId) }
-                : folder
-        ));
+        commit(prev => {
+            const actualId = resolveFolderId(prev, folderId, fileId);
+            return prev.map(folder =>
+                folder.id === actualId
+                    ? { ...folder, files: folder.files.filter(file => file.id !== fileId) }
+                    : folder
+            );
+        });
     }, [commit]);
 
     const renameFolder = useCallback((newFolderName, id) => {
@@ -240,30 +284,50 @@ export const PlayGroundProvider = ({ children }) => {
     }, [commit]);
 
     const renameFile = useCallback((newFileName, folderId, fileId) => {
-        commit(prev => prev.map(folder =>
-            folder.id === folderId
-                ? {
-                    ...folder,
-                    files: folder.files.map(file =>
-                        file.id === fileId ? { ...file, title: newFileName } : file
-                    )
-                }
-                : folder
-        ));
+        commit(prev => mapFile(prev, folderId, fileId, file => ({
+            ...file,
+            title: newFileName,
+            updatedAt: Date.now()
+        })));
     }, [commit]);
 
-    // `patch` is a partial file, e.g. { code } or { code, language }.
+    // `patch` is a partial file, e.g. { code } or { code, language }. Only a
+    // real change bumps updatedAt: the collab mirror and unmount flush rewrite
+    // identical code, which must not make a file look freshly edited.
     const updateFile = useCallback((folderId, fileId, patch) => {
-        commit(prev => prev.map(folder =>
-            folder.id === folderId
-                ? {
-                    ...folder,
-                    files: folder.files.map(file =>
-                        file.id === fileId ? { ...file, ...patch } : file
-                    )
+        commit(prev => mapFile(prev, folderId, fileId, file => {
+            const changed = Object.keys(patch).some(key => file[key] !== patch[key]);
+            return changed ? { ...file, ...patch, updatedAt: Date.now() } : file;
+        }));
+    }, [commit]);
+
+    // Moves a file to the end of another folder. Takes no source folder: the
+    // file's current location is looked up, so a stale id cannot misfire.
+    const moveFile = useCallback((fileId, toFolderId) => {
+        commit(prev => {
+            const from = prev.find(folder => folder.files.some(file => file.id === fileId));
+            const to = prev.find(folder => folder.id === toFolderId);
+            if (!from || !to || from.id === to.id) return prev;
+
+            const moved = from.files.find(file => file.id === fileId);
+            return prev.map(folder => {
+                if (folder.id === from.id) {
+                    return { ...folder, files: folder.files.filter(file => file.id !== fileId) };
                 }
-                : folder
-        ));
+                if (folder.id === to.id) {
+                    return { ...folder, files: [...folder.files, moved] };
+                }
+                return folder;
+            });
+        });
+    }, [commit]);
+
+    const toggleStar = useCallback((folderId, fileId) => {
+        commit(prev => mapFile(prev, folderId, fileId, file => ({ ...file, starred: !file.starred })));
+    }, [commit]);
+
+    const markOpened = useCallback((folderId, fileId) => {
+        commit(prev => mapFile(prev, folderId, fileId, file => ({ ...file, openedAt: Date.now() })));
     }, [commit]);
 
     const updateFileCode = useCallback((folderId, fileId, newCode) => {
@@ -281,11 +345,14 @@ export const PlayGroundProvider = ({ children }) => {
         createNewFile,
         createFileWithIds,
         updateFile,
-        updateFileCode
+        updateFileCode,
+        moveFile,
+        toggleStar,
+        markOpened
     }), [
         folders, createNewPlayground, createNewFolder, deleteFolder,
         renameFolder, renameFile, deleteFile, createNewFile, createFileWithIds,
-        updateFile, updateFileCode
+        updateFile, updateFileCode, moveFile, toggleStar, markOpened
     ]);
 
     return (

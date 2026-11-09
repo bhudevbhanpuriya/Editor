@@ -79,7 +79,7 @@ export const EditorContainer = ({ fileId, folderId, runCode }) => {
     const [editorReady, setEditorReady] = useState(false);
 
     // The saved file is the source of truth; the editor holds the draft.
-    const { file } = findFile(folders, folderId, fileId);
+    const { folder, file } = findFile(folders, folderId, fileId);
 
     const [code, setCode] = useState(file?.code ?? "");
     const [language, setLanguage] = useState(file?.language ?? "");
@@ -248,7 +248,9 @@ export const EditorContainer = ({ fileId, folderId, runCode }) => {
         <div className="editor-container" style={isFullScreen ? styles.fullScreen : {}}>
             <div className="editor-header">
                 <div className="title-section">
-                    {file.title}
+                    <span className="crumb-folder" title={`In folder ${folder.title}`}>{folder.title}</span>
+                    <span className="crumb-sep" aria-hidden="true">/</span>
+                    <span className="crumb-file">{file.title}</span>
                     <button
                         type="button"
                         className="edit-icon"

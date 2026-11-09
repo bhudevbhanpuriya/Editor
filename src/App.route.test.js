@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import App from './App';
 
 jest.mock('@monaco-editor/react', () => ({
@@ -18,7 +18,9 @@ it('opens a playground URL directly', () => {
 
     render(<App />);
 
-    expect(screen.getByText('index')).toBeInTheDocument();
+    // The file tree marks the open file, and the editor holds its code.
+    const tree = screen.getByRole('complementary', { name: 'Files' });
+    expect(within(tree).getByRole('link', { name: /index/ })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByTestId('editor').value).toContain('#include');
     expect(screen.getByRole('button', { name: /Run Code/i })).toBeInTheDocument();
 });
